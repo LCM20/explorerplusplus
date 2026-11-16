@@ -54,8 +54,10 @@ void BrowserTestBase::SetUpAppServices()
 	m_appServices.SetFeatureList(&m_featureList);
 	m_appServices.SetFrequentLocationsModel(&m_frequentLocationsModel);
 	m_appServices.SetHistoryModel(&m_historyModel);
+	m_appServices.SetLifespanModel(&m_lifespanModel);
 	m_appServices.SetModelessDialogList(&m_modelessDialogList);
 	m_appServices.SetNavigationEvents(&m_navigationEvents);
+	m_appServices.SetNotesModel(&m_notesModel);
 	m_appServices.SetPlatformContext(&m_platformContext);
 	m_appServices.SetPluginCommandManager(&m_pluginCommandManager);
 	m_appServices.SetPluginMenuItemsRegistry(&m_pluginMenuItemsRegistry);

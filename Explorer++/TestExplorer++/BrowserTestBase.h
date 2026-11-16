@@ -23,8 +23,10 @@
 #include "FrequentLocationsTracker.h"
 #include "HistoryModel.h"
 #include "HistoryTracker.h"
+#include "LifespanModel.h"
 #include "ModelessDialogList.h"
 #include "NoOpClipboardWatcher.h"
+#include "NotesModel.h"
 #include "NoOpWindowThemeManager.h"
 #include "PlatformContextFake.h"
 #include "Plugins/PluginCommandManager.h"
@@ -92,6 +94,8 @@ protected:
 	TabList m_tabList;
 	HistoryModel m_historyModel;
 	HistoryTracker m_historyTracker;
+	LifespanModel m_lifespanModel;
+	NotesModel m_notesModel;
 	FrequentLocationsModel m_frequentLocationsModel;
 	FrequentLocationsTracker m_frequentLocationsTracker;
 	BrowserList m_browserList;
