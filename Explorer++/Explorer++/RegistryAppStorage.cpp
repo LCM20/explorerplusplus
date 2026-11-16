@@ -11,6 +11,8 @@
 #include "DefaultColumnRegistryStorage.h"
 #include "DialogStorageHelper.h"
 #include "FrequentLocationsRegistryStorage.h"
+#include "LifespanRegistryStorage.h"
+#include "NotesRegistryStorage.h"
 #include "RebarBandStorageData.h"
 #include "TabStorage.h"
 #include "WindowRegistryStorage.h"
@@ -61,6 +63,16 @@ void RegistryAppStorage::LoadFrequentLocations(FrequentLocationsModel *frequentL
 	FrequentLocationsRegistryStorage::Load(m_applicationKey.get(), frequentLocationsModel);
 }
 
+void RegistryAppStorage::LoadNotes(NotesModel *model)
+{
+	NotesRegistryStorage::Load(m_applicationKey.get(), model);
+}
+
+void RegistryAppStorage::LoadLifespans(LifespanModel *model)
+{
+	LifespanRegistryStorage::Load(m_applicationKey.get(), model);
+}
+
 void RegistryAppStorage::SaveConfig(const Config &config)
 {
 	ConfigRegistryStorage::Save(m_applicationKey.get(), config);
@@ -99,6 +111,16 @@ void RegistryAppStorage::SaveDefaultColumns(const FolderColumns &defaultColumns)
 void RegistryAppStorage::SaveFrequentLocations(const FrequentLocationsModel *frequentLocationsModel)
 {
 	FrequentLocationsRegistryStorage::Save(m_applicationKey.get(), frequentLocationsModel);
+}
+
+void RegistryAppStorage::SaveNotes(const NotesModel *model)
+{
+	NotesRegistryStorage::Save(m_applicationKey.get(), model);
+}
+
+void RegistryAppStorage::SaveLifespans(const LifespanModel *model)
+{
+	LifespanRegistryStorage::Save(m_applicationKey.get(), model);
 }
 
 void RegistryAppStorage::Commit()

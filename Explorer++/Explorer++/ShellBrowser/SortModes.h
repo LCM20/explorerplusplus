@@ -82,7 +82,10 @@ enum class SortMode
 	MediaProducer = 61,
 	MediaPublisher = 62,
 	MediaWriter = 63,
-	MediaYear = 64
+	MediaYear = 64,
+
+	Note = 65,
+	Lifespan = 66
 };
 
 UINT GetSortModeMenuStringId(SortMode sortMode);

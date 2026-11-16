@@ -176,6 +176,16 @@ std::wstring GetColumnText(ColumnType columnType, const BasicItemInfo_t &basicIt
 	case ColumnType::MediaYear:
 		return GetMediaMetadataColumnText(basicItemInfo, MediaMetadataType::Year);
 
+	// Note text is resolved by the caller (see ShellBrowserImpl::QueueColumnTask), since it's held
+	// in memory by the notes model. Any note text set here would simply be overwritten.
+	case ColumnType::Note:
+		return L"";
+
+	// Lifespan text is resolved by the caller (see ShellBrowserImpl::QueueColumnTask), since it's
+	// held in memory by the lifespan model. Any text set here would simply be overwritten.
+	case ColumnType::Lifespan:
+		return L"";
+
 	default:
 		assert(false);
 		break;

@@ -195,6 +195,12 @@ UINT GetSortModeMenuStringId(SortMode sortMode)
 
 	case SortMode::MediaYear:
 		return IDS_COLUMN_NAME_YEAR;
+
+	case SortMode::Note:
+		return IDS_SORTBY_NOTE;
+
+	case SortMode::Lifespan:
+		return IDS_SORTBY_LIFESPAN;
 	}
 
 	LOG(FATAL) << "Invalid SortMode value";
@@ -344,6 +350,12 @@ std::optional<UINT> MaybeGetSortModeMenuHelpStringId(SortMode sortMode)
 	case SortMode::MediaWriter:
 	case SortMode::MediaYear:
 		return std::nullopt;
+
+	case SortMode::Note:
+		return IDS_SORTBY_NOTE_HELP_TEXT;
+
+	case SortMode::Lifespan:
+		return IDS_SORTBY_LIFESPAN_HELP_TEXT;
 	}
 
 	LOG(FATAL) << "Invalid SortMode value";

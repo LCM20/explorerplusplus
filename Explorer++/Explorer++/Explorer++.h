@@ -187,6 +187,13 @@ private:
 	void OnResolveLink();
 	void OnShowHiddenFiles();
 	void OnSelectColumns();
+	void OnShowAllNotes();
+	void OnAddNote();
+	void OnDeleteNote();
+	void OnShowAllLifespans();
+	void OnSetLifespan();
+	void OnCancelLifespan();
+	std::optional<std::wstring> MaybeGetFirstSelectedItemPath() const;
 	void OnDestroyFiles();
 	void OnShowOptions();
 

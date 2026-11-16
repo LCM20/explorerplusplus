@@ -8,11 +8,19 @@
 
 static const int DEFAULT_COLUMN_WIDTH = 150;
 
+// The note column is slightly wider than the default, to allow a reasonable amount of text to be
+// shown.
+static const int NOTE_COLUMN_WIDTH = 180;
+
+static const int LIFESPAN_COLUMN_WIDTH = 90;
+
 static const Column_t REAL_FOLDER_DEFAULT_COLUMNS[] = {
 	{ ColumnType::Name, TRUE, DEFAULT_COLUMN_WIDTH },
 	{ ColumnType::Type, TRUE, DEFAULT_COLUMN_WIDTH },
 	{ ColumnType::Size, TRUE, DEFAULT_COLUMN_WIDTH },
 	{ ColumnType::DateModified, TRUE, DEFAULT_COLUMN_WIDTH },
+	{ ColumnType::Note, TRUE, NOTE_COLUMN_WIDTH },
+	{ ColumnType::Lifespan, TRUE, LIFESPAN_COLUMN_WIDTH },
 	{ ColumnType::Attributes, FALSE, DEFAULT_COLUMN_WIDTH },
 	{ ColumnType::RealSize, FALSE, DEFAULT_COLUMN_WIDTH },
 	{ ColumnType::ShortName, FALSE, DEFAULT_COLUMN_WIDTH },

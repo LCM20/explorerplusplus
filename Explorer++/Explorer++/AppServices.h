@@ -22,8 +22,10 @@ class DriveModel;
 class FeatureList;
 class FrequentLocationsModel;
 class HistoryModel;
+class LifespanModel;
 class ModelessDialogList;
 class NavigationEvents;
+class NotesModel;
 class PlatformContext;
 class ResourceLoader;
 class Runtime;
@@ -145,6 +147,10 @@ public:
 	const HistoryModel *GetHistoryModel() const;
 	void SetHistoryModel(HistoryModel *historyModel);
 
+	LifespanModel *GetLifespanModel();
+	const LifespanModel *GetLifespanModel() const;
+	void SetLifespanModel(LifespanModel *lifespanModel);
+
 	ModelessDialogList *GetModelessDialogList();
 	const ModelessDialogList *GetModelessDialogList() const;
 	void SetModelessDialogList(ModelessDialogList *modelessDialogList);
@@ -152,6 +158,10 @@ public:
 	NavigationEvents *GetNavigationEvents();
 	const NavigationEvents *GetNavigationEvents() const;
 	void SetNavigationEvents(NavigationEvents *navigationEvents);
+
+	NotesModel *GetNotesModel();
+	const NotesModel *GetNotesModel() const;
+	void SetNotesModel(NotesModel *notesModel);
 
 	PlatformContext *GetPlatformContext();
 	const PlatformContext *GetPlatformContext() const;
@@ -213,9 +223,10 @@ private:
 		AsyncIconFetcher *, BookmarkTree *, BrowserList *, BrowserWindowFactory *, CachedIcons *,
 		ClipboardWatcher *, ColorRuleModel *, const CommandLine::Settings *, Config *,
 		DarkModeManager *, DirectoryWatcherFactory *, DriveModel *, FeatureList *,
-		FrequentLocationsModel *, HistoryModel *, ModelessDialogList *, NavigationEvents *,
-		PlatformContext *, Plugins::PluginCommandManager *, Plugins::PluginMenuItemsRegistry *,
-		ResourceLoader *, Runtime *, ShellBrowserEvents *, TabEvents *, TabList *, TabRestorer *,
-		ThemeManager *, WindowThemeManager *>
+		FrequentLocationsModel *, HistoryModel *, LifespanModel *, ModelessDialogList *,
+		NavigationEvents *,
+		NotesModel *, PlatformContext *, Plugins::PluginCommandManager *,
+		Plugins::PluginMenuItemsRegistry *, ResourceLoader *, Runtime *, ShellBrowserEvents *,
+		TabEvents *, TabList *, TabRestorer *, ThemeManager *, WindowThemeManager *>
 		m_services;
 };

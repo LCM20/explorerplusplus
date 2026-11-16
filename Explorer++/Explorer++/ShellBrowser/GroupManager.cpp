@@ -297,6 +297,14 @@ int ShellBrowserImpl::DetermineItemGroup(int iItemInternal)
 		groupInfo = DetermineItemNetworkStatus(basicItemInfo);
 		break;
 
+	case SortMode::Note:
+		// Notes aren't used to generate groups. Items are grouped as unspecified instead.
+		break;
+
+	case SortMode::Lifespan:
+		// Lifespans aren't used to generate groups. Items are grouped as unspecified instead.
+		break;
+
 	default:
 		assert(false);
 		break;

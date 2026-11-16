@@ -4,8 +4,11 @@
 
 #include "stdafx.h"
 #include "ShellBrowserImpl.h"
+#include "AppServices.h"
 #include "Config.h"
 #include "ItemData.h"
+#include "LifespanModel.h"
+#include "NotesModel.h"
 #include "SortHelper.h"
 #include "SortModes.h"
 #include "ViewModes.h"
@@ -347,15 +350,33 @@ int CALLBACK ShellBrowserImpl::Sort(int InternalIndex1, int InternalIndex2) cons
 				SortByMediaMetadata(basicItemInfo1, basicItemInfo2, MediaMetadataType::Writer);
 			break;
 
-		case SortMode::MediaYear:
-			comparisonResult =
-				SortByMediaMetadata(basicItemInfo1, basicItemInfo2, MediaMetadataType::Year);
-			break;
+	case SortMode::MediaYear:
+		comparisonResult = SortByMediaMetadata(basicItemInfo1, basicItemInfo2,
+			MediaMetadataType::Year);
+		break;
 
-		default:
-			assert(false);
-			break;
-		}
+	case SortMode::Note:
+	{
+		const auto *notesModel = m_appServices->GetNotesModel();
+		comparisonResult = SortByNote(notesModel->MaybeGetNote(
+								  m_itemInfoMap.at(InternalIndex1).parsingName),
+			notesModel->MaybeGetNote(m_itemInfoMap.at(InternalIndex2).parsingName));
+	}
+	break;
+
+	case SortMode::Lifespan:
+	{
+		const auto *lifespanModel = m_appServices->GetLifespanModel();
+		comparisonResult = SortByLifespan(lifespanModel->MaybeGetLifespan(
+											  m_itemInfoMap.at(InternalIndex1).parsingName),
+			lifespanModel->MaybeGetLifespan(m_itemInfoMap.at(InternalIndex2).parsingName));
+	}
+	break;
+
+	default:
+		assert(false);
+		break;
+	}
 	}
 
 	if (comparisonResult == 0)

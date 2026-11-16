@@ -21,7 +21,6 @@ private:
 	{
 		CheckSystemIsPinnedToNameSpaceTree,
 		OpenTabsInForeground,
-		GoUpOnDoubleClick,
 		QuickAccessInTreeView
 	};
 

@@ -48,6 +48,8 @@ private:
 	void BuildEditMenu();
 	void BuildSelectionMenu();
 	void BuildViewMenu(BrowserWindow *browser, AppServices *appServices);
+	void BuildNotesMenu();
+	void BuildLifespanMenu();
 	void BuildFilterSubMenu(MenuView *filterMenuView);
 	void BuildActionsMenu();
 	void BuildGoMenu(BrowserWindow *browser, AppServices *appServices,

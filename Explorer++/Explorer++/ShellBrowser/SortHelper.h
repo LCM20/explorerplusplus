@@ -6,6 +6,7 @@
 
 #include "ColumnDataRetrieval.h"
 #include "FolderSettings.h"
+#include <optional>
 
 struct BasicItemInfo_t;
 
@@ -44,3 +45,6 @@ int SortByPrinterProperty(const BasicItemInfo_t &itemInfo1, const BasicItemInfo_
 int SortByNetworkAdapterStatus(const BasicItemInfo_t &itemInfo1, const BasicItemInfo_t &itemInfo2);
 int SortByMediaMetadata(const BasicItemInfo_t &itemInfo1, const BasicItemInfo_t &itemInfo2,
 	MediaMetadataType mediaMetadataType);
+int SortByNote(const std::optional<std::wstring> &note1, const std::optional<std::wstring> &note2);
+int SortByLifespan(const std::optional<FILETIME> &expiryTime1,
+	const std::optional<FILETIME> &expiryTime2);

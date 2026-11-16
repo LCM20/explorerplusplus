@@ -12,6 +12,8 @@
 #include "FolderView.h"
 #include "IconFetcher.h"
 #include "ItemData.h"
+#include "LifespanHelper.h"
+#include "LifespanModel.h"
 #include "LabelEditHandler.h"
 #include "MainResource.h"
 #include "NavigateParams.h"
@@ -34,6 +36,7 @@
 #include "../Helper/MenuHelper.h"
 #include "../Helper/ShellHelper.h"
 #include "../Helper/WinRTBaseWrapper.h"
+#include "NotesModel.h"
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <glog/logging.h>
@@ -73,23 +76,6 @@ LRESULT ShellBrowserImpl::ListViewProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
 {
 	switch (uMsg)
 	{
-	// NM_DBLCLK for the listview is sent both on double clicks (by default), as well as in the
-	// situation when LVS_EX_ONECLICKACTIVATE is active (in which case it's sent on a single mouse
-	// click). Navigation up should only occur on a double click, which is why WM_LBUTTONDBLCLK is
-	// used.
-	case WM_LBUTTONDBLCLK:
-	{
-		POINT pt;
-		POINTSTOPOINT(pt, MAKEPOINTS(lParam));
-		bool handled = OnListViewLeftButtonDoubleClick(&pt);
-
-		if (handled)
-		{
-			return 0;
-		}
-	}
-	break;
-
 	case WM_MBUTTONDOWN:
 	{
 		POINT pt;
@@ -300,25 +286,73 @@ void ShellBrowserImpl::OnListViewDoubleClick(const NMITEMACTIVATE *eventInfo)
 	}
 }
 
-bool ShellBrowserImpl::OnListViewLeftButtonDoubleClick(const POINT *pt)
+void ShellBrowserImpl::RefreshNoteColumn()
 {
-	if (!m_config->goUpOnDoubleClick)
+	if (m_folderSettings.viewMode != ViewMode::Details)
 	{
-		return false;
+		return;
 	}
 
-	LV_HITTESTINFO ht;
-	ht.pt = *pt;
-	ListView_HitTest(m_listView, &ht);
+	auto columnIndex = GetColumnIndexByType(ColumnType::Note);
 
-	if (ht.flags != LVHT_NOWHERE)
+	if (!columnIndex)
 	{
-		return false;
+		return;
 	}
 
-	m_navigationController->GoUp();
+	const auto *notesModel = m_appServices->GetNotesModel();
 
-	return true;
+	int numItems = ListView_GetItemCount(m_listView);
+
+	for (int i = 0; i < numItems; i++)
+	{
+		const auto &item = GetItemByIndex(i);
+
+		std::wstring text;
+		auto note = notesModel->MaybeGetNote(item.parsingName);
+
+		if (note)
+		{
+			text = *note;
+		}
+
+		ListView_SetItemText(m_listView, i, *columnIndex, text.data());
+	}
+}
+
+void ShellBrowserImpl::RefreshLifespanColumn()
+{
+	if (m_folderSettings.viewMode != ViewMode::Details)
+	{
+		return;
+	}
+
+	auto columnIndex = GetColumnIndexByType(ColumnType::Lifespan);
+
+	if (!columnIndex)
+	{
+		return;
+	}
+
+	const auto *lifespanModel = m_appServices->GetLifespanModel();
+	const auto *resourceLoader = m_appServices->GetResourceLoader();
+
+	int numItems = ListView_GetItemCount(m_listView);
+
+	for (int i = 0; i < numItems; i++)
+	{
+		const auto &item = GetItemByIndex(i);
+
+		std::wstring text;
+		auto expiryTime = lifespanModel->MaybeGetLifespan(item.parsingName);
+
+		if (expiryTime)
+		{
+			text = LifespanHelper::FormatRemainingTime(*expiryTime, resourceLoader);
+		}
+
+		ListView_SetItemText(m_listView, i, *columnIndex, text.data());
+	}
 }
 
 void ShellBrowserImpl::OnListViewMButtonDown(const POINT *pt)

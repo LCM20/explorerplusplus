@@ -26,6 +26,8 @@ public:
 	void LoadDialogStates() override;
 	void LoadDefaultColumns(FolderColumns &defaultColumns) override;
 	void LoadFrequentLocations(FrequentLocationsModel *frequentLocationsModel) override;
+	void LoadNotes(NotesModel *model) override;
+	void LoadLifespans(LifespanModel *model) override;
 
 	void SaveConfig(const Config &config) override;
 	void SaveWindows(const std::vector<WindowStorageData> &windows) override;
@@ -35,6 +37,8 @@ public:
 	void SaveDialogStates() override;
 	void SaveDefaultColumns(const FolderColumns &defaultColumns) override;
 	void SaveFrequentLocations(const FrequentLocationsModel *frequentLocationsModel) override;
+	void SaveNotes(const NotesModel *model) override;
+	void SaveLifespans(const LifespanModel *model) override;
 	void Commit() override;
 
 private:

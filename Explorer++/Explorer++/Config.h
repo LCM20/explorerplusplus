@@ -50,7 +50,7 @@ struct Config
 	bool treeViewDelayEnabled = false;
 	bool treeViewAutoExpandSelected = false;
 	ValueWrapper<bool> showTaskbarThumbnails = false;
-	ValueWrapper<bool> useFullRowSelect = false;
+	ValueWrapper<bool> useFullRowSelect = true;
 	bool showFilePreviews = true;
 	bool allowMultipleInstances = true;
 	bool doubleClickTabClose = true;
@@ -60,7 +60,6 @@ struct Config
 	bool confirmCloseTabs = false;
 	ValueWrapper<bool> synchronizeTreeview = true;
 	ValueWrapper<bool> displayWindowVertical = false;
-	bool goUpOnDoubleClick = true;
 
 	// Indicates whether container files (e.g. .7z, .cab, .rar, .zip) will be opened in Explorer++,
 	// or externally.

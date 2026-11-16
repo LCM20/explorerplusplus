@@ -17,8 +17,11 @@
 #include "FileSystemWatcher.h"
 #include "JumpListHelper.h"
 #include "LanguageHelper.h"
+#include "LifespanEnforcer.h"
+#include "LifespanModel.h"
 #include "MainResource.h"
 #include "MenuRanges.h"
+#include "NotesModel.h"
 #include "RebarBandStorageData.h"
 #include "RegistryAppStorage.h"
 #include "RegistryAppStorageFactory.h"
@@ -55,6 +58,8 @@ App::App(const CommandLine::Settings *commandLineSettings) :
 	m_cachedIcons(MAX_CACHED_ICONS),
 	m_iconFetcher(&m_runtime, &m_cachedIcons),
 	m_colorRuleModel(ColorRuleModelFactory::Create()),
+	m_notesModel(std::make_unique<NotesModel>()),
+	m_lifespanModel(std::make_unique<LifespanModel>()),
 	m_processManager(&m_browserList),
 	m_tabList(&m_tabEvents),
 	m_tabRestorer(&m_tabEvents, &m_browserList),
@@ -117,6 +122,24 @@ int App::Run()
 	const auto saveFrequency = 30s;
 	m_saveSettingsTimer = m_runtime.GetTimerQueue()->make_timer(saveFrequency, saveFrequency,
 		m_runtime.GetUiThreadExecutor(), std::bind_front(&App::SaveSettings, this));
+#pragma warning(pop)
+
+	m_lifespanEnforcer = std::make_unique<LifespanEnforcer>(&m_appServices);
+
+	// Internally, concurrencpp converts the duration to size_t, which triggers a warning in the
+	// 32-bit build. The conversion is fine, since the duration here is well below the point at
+	// which truncation would occur and it's not reasonable for the duration to ever be large enough
+	// for truncation to occur.
+#pragma warning(push)
+#pragma warning(                                                                                   \
+	disable : 4244) // 'argument': conversion from '_Rep' to 'size_t', possible loss of data
+	// The first check happens shortly after startup, to handle items that expired while the
+	// application wasn't running. Subsequent checks happen periodically.
+	const auto lifespanCheckInitialDelay = 5s;
+	const auto lifespanCheckFrequency = 60s;
+	m_lifespanCheckTimer = m_runtime.GetTimerQueue()->make_timer(lifespanCheckInitialDelay,
+		lifespanCheckFrequency, m_runtime.GetUiThreadExecutor(),
+		std::bind_front(&App::CheckLifespans, this));
 #pragma warning(pop)
 
 	MSG msg;
@@ -188,6 +211,8 @@ void App::LoadSettings(std::vector<WindowStorageData> &windows)
 	windows = appStorage->LoadWindows();
 	appStorage->LoadBookmarks(m_bookmarkTree.get());
 	appStorage->LoadColorRules(m_colorRuleModel.get());
+	appStorage->LoadNotes(m_notesModel.get());
+	appStorage->LoadLifespans(m_lifespanModel.get());
 	appStorage->LoadApplications(&m_applicationModel);
 	appStorage->LoadDialogStates();
 	appStorage->LoadDefaultColumns(m_config.globalFolderSettings.folderColumns);
@@ -234,12 +259,19 @@ void App::SaveSettings()
 	appStorage->SaveWindows(windows);
 	appStorage->SaveBookmarks(m_bookmarkTree.get());
 	appStorage->SaveColorRules(m_colorRuleModel.get());
+	appStorage->SaveNotes(m_notesModel.get());
+	appStorage->SaveLifespans(m_lifespanModel.get());
 	appStorage->SaveApplications(&m_applicationModel);
 	appStorage->SaveDialogStates();
 	appStorage->SaveDefaultColumns(m_config.globalFolderSettings.folderColumns);
 	appStorage->SaveFrequentLocations(&m_frequentLocationsModel);
 
 	appStorage->Commit();
+}
+
+void App::CheckLifespans()
+{
+	m_lifespanEnforcer->CheckForExpiredItems();
 }
 
 void App::OnConfigLoaded()
@@ -308,6 +340,8 @@ void App::SetUpAppServices()
 	m_appServices.SetHistoryModel(&m_historyModel);
 	m_appServices.SetModelessDialogList(&m_modelessDialogList);
 	m_appServices.SetNavigationEvents(&m_navigationEvents);
+	m_appServices.SetNotesModel(m_notesModel.get());
+	m_appServices.SetLifespanModel(m_lifespanModel.get());
 	m_appServices.SetPlatformContext(&m_platformContext);
 	m_appServices.SetPluginCommandManager(&m_pluginCommandManager);
 	m_appServices.SetPluginMenuItemsRegistry(&m_pluginMenuItemsRegistry);

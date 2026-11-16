@@ -4,6 +4,10 @@
 
 #include "stdafx.h"
 #include "Explorer++.h"
+#include "AddNoteDialog.h"
+#include "LifespanModel.h"
+#include "LifespanOverviewDialog.h"
+#include "SetLifespanDialog.h"
 #include "AppServices.h"
 #include "BrowserCommands.h"
 #include "BrowserList.h"
@@ -17,6 +21,8 @@
 #include "MainRebarView.h"
 #include "MainResource.h"
 #include "ModelessDialogHelper.h"
+#include "NotesModel.h"
+#include "NotesOverviewDialog.h"
 #include "OptionsDialog.h"
 #include "PlatformContext.h"
 #include "Runtime.h"
@@ -752,4 +758,88 @@ void Explorerplusplus::OnSelectColumns()
 	auto *selectColumnsDialog = SelectColumnsDialog::Create(m_resourceLoader, m_hwnd,
 		GetActivePane()->GetTabBar()->GetSelectedTab().GetShellBrowserImpl());
 	selectColumnsDialog->ShowModalDialog();
+}
+
+void Explorerplusplus::OnShowAllNotes()
+{
+	auto *notesDialog = NotesOverviewDialog::Create(m_resourceLoader, m_hwnd,
+		m_appServices->GetNotesModel(),
+		GetActivePane()->GetTabBar()->GetSelectedTab().GetShellBrowserImpl());
+	notesDialog->ShowModalDialog();
+}
+
+void Explorerplusplus::OnAddNote()
+{
+	auto path = MaybeGetFirstSelectedItemPath();
+
+	if (!path)
+	{
+		return;
+	}
+
+	auto *addNoteDialog = AddNoteDialog::Create(m_resourceLoader, m_hwnd,
+		m_appServices->GetNotesModel(),
+		GetActivePane()->GetTabBar()->GetSelectedTab().GetShellBrowserImpl(), *path);
+	addNoteDialog->ShowModalDialog();
+}
+
+void Explorerplusplus::OnDeleteNote()
+{
+	auto path = MaybeGetFirstSelectedItemPath();
+
+	if (!path)
+	{
+		return;
+	}
+
+	m_appServices->GetNotesModel()->RemoveNote(*path);
+	GetActivePane()->GetTabBar()->GetSelectedTab().GetShellBrowserImpl()->RefreshNoteColumn();
+}
+
+void Explorerplusplus::OnShowAllLifespans()
+{
+	auto *lifespansDialog = LifespanOverviewDialog::Create(m_resourceLoader, m_hwnd,
+		m_appServices->GetLifespanModel(),
+		GetActivePane()->GetTabBar()->GetSelectedTab().GetShellBrowserImpl());
+	lifespansDialog->ShowModalDialog();
+}
+
+void Explorerplusplus::OnSetLifespan()
+{
+	auto path = MaybeGetFirstSelectedItemPath();
+
+	if (!path)
+	{
+		return;
+	}
+
+	auto *setLifespanDialog = SetLifespanDialog::Create(m_resourceLoader, m_hwnd,
+		m_appServices->GetLifespanModel(),
+		GetActivePane()->GetTabBar()->GetSelectedTab().GetShellBrowserImpl(), *path);
+	setLifespanDialog->ShowModalDialog();
+}
+
+void Explorerplusplus::OnCancelLifespan()
+{
+	auto path = MaybeGetFirstSelectedItemPath();
+
+	if (!path)
+	{
+		return;
+	}
+
+	m_appServices->GetLifespanModel()->RemoveLifespan(*path);
+	GetActivePane()->GetTabBar()->GetSelectedTab().GetShellBrowserImpl()->RefreshLifespanColumn();
+}
+
+std::optional<std::wstring> Explorerplusplus::MaybeGetFirstSelectedItemPath() const
+{
+	int selectedItem = ListView_GetNextItem(m_hActiveListView, -1, LVNI_SELECTED);
+
+	if (selectedItem == -1)
+	{
+		return std::nullopt;
+	}
+
+	return m_pActiveShellBrowser->GetItemFullName(selectedItem);
 }

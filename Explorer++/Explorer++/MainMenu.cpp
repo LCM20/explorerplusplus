@@ -53,6 +53,8 @@ void MainMenu::BuildMenu(BrowserWindow *browser, AppServices *appServices,
 	BuildEditMenu();
 	BuildSelectionMenu();
 	BuildViewMenu(browser, appServices);
+	BuildNotesMenu();
+	BuildLifespanMenu();
 	BuildActionsMenu();
 	BuildGoMenu(browser, appServices, shellIconLoader);
 	BuildBookmarksMenu(browser, appServices, iconFetcher);
@@ -209,6 +211,30 @@ void MainMenu::BuildFilterSubMenu(MenuView *filterMenuView)
 {
 	AppendItem(filterMenuView, IDM_FILTER_FILTERRESULTS, IDS_FILTER_FILTERRESULTS);
 	AppendItem(filterMenuView, IDM_FILTER_ENABLE_FILTER, IDS_FILTER_ENABLE_FILTER);
+}
+
+void MainMenu::BuildNotesMenu()
+{
+	auto *menuView = AppendSubMenu(m_rootMenuView, IDS_NOTES_POPUP);
+
+	AppendItem(menuView, IDM_NOTE_ADD, IDS_NOTE_ADD);
+	AppendItem(menuView, IDM_NOTE_DELETE, IDS_NOTE_DELETE);
+
+	menuView->AppendSeparator();
+
+	AppendItem(menuView, IDM_NOTE_OVERVIEW, IDS_NOTE_OVERVIEW);
+}
+
+void MainMenu::BuildLifespanMenu()
+{
+	auto *menuView = AppendSubMenu(m_rootMenuView, IDS_LIFESPAN_POPUP);
+
+	AppendItem(menuView, IDM_LIFESPAN_SET, IDS_LIFESPAN_SET);
+	AppendItem(menuView, IDM_LIFESPAN_CANCEL, IDS_LIFESPAN_CANCEL);
+
+	menuView->AppendSeparator();
+
+	AppendItem(menuView, IDM_LIFESPAN_OVERVIEW, IDS_LIFESPAN_OVERVIEW);
 }
 
 void MainMenu::BuildActionsMenu()
@@ -628,6 +654,24 @@ std::optional<UINT> MainMenu::MaybeGetHelpTextIdForCommand(WORD id)
 
 	case IDM_VIEW_SELECTCOLUMNS:
 		return IDS_VIEW_SELECTCOLUMNS_HELP_TEXT;
+
+	case IDM_NOTE_ADD:
+		return IDS_NOTE_ADD_HELP_TEXT;
+
+	case IDM_NOTE_DELETE:
+		return IDS_NOTE_DELETE_HELP_TEXT;
+
+	case IDM_NOTE_OVERVIEW:
+		return IDS_NOTE_OVERVIEW_HELP_TEXT;
+
+	case IDM_LIFESPAN_SET:
+		return IDS_LIFESPAN_SET_HELP_TEXT;
+
+	case IDM_LIFESPAN_CANCEL:
+		return IDS_LIFESPAN_CANCEL_HELP_TEXT;
+
+	case IDM_LIFESPAN_OVERVIEW:
+		return IDS_LIFESPAN_OVERVIEW_HELP_TEXT;
 
 	case IDM_VIEW_SAVECOLUMNLAYOUTASDEFAULT:
 		return IDS_VIEW_SAVECOLUMNLAYOUTASDEFAULT_HELP_TEXT;

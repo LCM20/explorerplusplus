@@ -168,6 +168,16 @@ public:
 
 	void QueueRename(PCIDLIST_ABSOLUTE pidlItem);
 
+	// Updates the text shown in the note column for all items, based on the current set of notes.
+	// This can be used, for example, after a note has been changed outside of the listview (e.g.
+	// through the notes overview dialog).
+	void RefreshNoteColumn();
+
+	// Updates the text shown in the lifespan column for all items, based on the current set of
+	// lifespans. This can be used, for example, after a lifespan has been changed outside of the
+	// listview (e.g. through the lifespan overview dialog).
+	void RefreshLifespanColumn();
+
 	// BrowserCommandTarget
 	bool IsCommandEnabled(int command) const override;
 	void ExecuteCommand(int command) override;
@@ -413,7 +423,6 @@ private:
 	/* Listview. */
 	void OnListViewClick(const NMITEMACTIVATE *eventInfo);
 	void OnListViewDoubleClick(const NMITEMACTIVATE *eventInfo);
-	bool OnListViewLeftButtonDoubleClick(const POINT *pt);
 	void OnListViewMButtonDown(const POINT *pt);
 	void OnListViewMButtonUp(const POINT *pt, UINT keysDown);
 	void OnRButtonDown(HWND hwnd, BOOL doubleClick, int x, int y, UINT keyFlags);
@@ -495,7 +504,9 @@ private:
 	void QueueColumnTask(int itemInternalIndex, ColumnType columnType);
 	static ColumnResult_t GetColumnTextAsync(HWND listView, int columnResultId,
 		ColumnType columnType, int internalIndex, const BasicItemInfo_t &basicItemInfo,
-		const GlobalFolderSettings &globalFolderSettings);
+		const GlobalFolderSettings &globalFolderSettings,
+		const std::optional<std::wstring> &noteText,
+		const std::optional<std::wstring> &lifespanText);
 	void InsertColumn(ColumnType columnType, int columnIndex, int width);
 	void SetActiveColumnSet();
 	void GetColumnInternal(ColumnType columnType, Column_t *pci) const;

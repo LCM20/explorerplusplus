@@ -259,7 +259,6 @@ void LoadFromNode(IXMLDOMNode *settingsNode, Config &config)
 
 	GetEnumSetting(settingsNode, L"GroupSortDirectionGlobal",
 		config.defaultFolderSettings.groupSortDirection);
-	GetBoolSetting(settingsNode, L"GoUpOnDoubleClick", config.goUpOnDoubleClick);
 
 	if (wil::com_ptr_nothrow<IXMLDOMNode> node;
 		GetSettingNode(settingsNode, MAIN_FONT_NODE_NAME, &node) == S_OK)
@@ -481,8 +480,6 @@ void SaveToNode(IXMLDOMDocument *xmlDocument, IXMLDOMElement *settingsNode, cons
 		L"GroupSortDirectionGlobal",
 		XMLSettings::EncodeIntValue(
 			static_cast<int>(config.defaultFolderSettings.groupSortDirection)));
-	XMLSettings::WriteStandardSetting(xmlDocument, settingsNode, SETTING_NODE_NAME,
-		L"GoUpOnDoubleClick", XMLSettings::EncodeBoolValue(config.goUpOnDoubleClick));
 
 	auto &mainFont = config.mainFont.get();
 

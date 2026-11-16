@@ -49,6 +49,9 @@
 
 class BookmarkTree;
 class ColorRuleModel;
+class LifespanEnforcer;
+class LifespanModel;
+class NotesModel;
 class ResourceLoader;
 struct WindowStorageData;
 
@@ -73,6 +76,7 @@ private:
 	void SetUpSession();
 	void LoadSettings(std::vector<WindowStorageData> &windows);
 	void SaveSettings();
+	void CheckLifespans();
 	void OnConfigLoaded();
 	void SetUpLanguageResourceInstance();
 	void SetUpAppServices();
@@ -116,6 +120,9 @@ private:
 	ModelessDialogList m_modelessDialogList;
 	std::unique_ptr<BookmarkTree> m_bookmarkTree;
 	std::unique_ptr<ColorRuleModel> m_colorRuleModel;
+	std::unique_ptr<NotesModel> m_notesModel;
+	std::unique_ptr<LifespanModel> m_lifespanModel;
+	std::unique_ptr<LifespanEnforcer> m_lifespanEnforcer;
 	Applications::ApplicationModel m_applicationModel;
 	std::unique_ptr<ResourceLoader> m_resourceLoader;
 	ProcessManager m_processManager;
@@ -140,6 +147,7 @@ private:
 	Plugins::PluginManager m_pluginManager;
 
 	concurrencpp::timer m_saveSettingsTimer;
+	concurrencpp::timer m_lifespanCheckTimer;
 
 	unique_gdiplus_shutdown m_uniqueGdiplusShutdown;
 	wil::unique_hmodule m_richEditLib;

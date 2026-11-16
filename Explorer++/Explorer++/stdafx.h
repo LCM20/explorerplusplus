@@ -37,6 +37,12 @@
 // clang-format on
 #include <commctrl.h>
 #include <commoncontrols.h>
+// NOMINMAX is defined project-wide (to avoid min/max macro clashes with C++/WinRT and Boost), but
+// the GDI+ headers in Windows SDK 10.0.19041.0 rely on the unqualified min/max macros that
+// windows.h otherwise provides. Provide std::min/std::max instead so GDI+ compiles.
+#include <algorithm>
+using std::min;
+using std::max;
 #include <gdiplus.h>
 #include <ocidl.h>
 #include <shlobj.h>

@@ -90,7 +90,11 @@ enum class ColumnType
 	MediaYear = 63,
 
 	/* Printer columns. */
-	PrinterModel = 64
+	PrinterModel = 64,
+
+	/* Custom columns. */
+	Note = 65,
+	Lifespan = 66
 };
 
 struct Column_t

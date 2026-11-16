@@ -94,12 +94,6 @@ std::vector<AdvancedOptionsPage::AdvancedOption> AdvancedOptionsPage::Initialize
 		m_resourceLoader->LoadString(IDS_ADVANCED_OPTION_OPEN_TABS_IN_FOREGROUND_DESCRIPTION);
 	advancedOptions.push_back(option);
 
-	option.id = AdvancedOptionId::GoUpOnDoubleClick;
-	option.name = m_resourceLoader->LoadString(IDS_ADVANCED_OPTION_GO_UP_ON_DOUBLE_CLICK_NAME);
-	option.type = AdvancedOptionType::Boolean;
-	option.description = {};
-	advancedOptions.push_back(option);
-
 	option.id = AdvancedOptionId::QuickAccessInTreeView;
 	option.name =
 		m_resourceLoader->LoadString(IDS_ADVANCED_OPTION_SHOW_QUICK_ACCESS_IN_TREEVIEW_NAME);
@@ -152,9 +146,6 @@ bool AdvancedOptionsPage::GetBooleanConfigValue(AdvancedOptionId id)
 	case AdvancedOptionId::OpenTabsInForeground:
 		return m_config->openTabsInForeground;
 
-	case AdvancedOptionId::GoUpOnDoubleClick:
-		return m_config->goUpOnDoubleClick;
-
 	case AdvancedOptionId::QuickAccessInTreeView:
 		return m_config->showQuickAccessInTreeView.get();
 
@@ -176,10 +167,6 @@ void AdvancedOptionsPage::SetBooleanConfigValue(AdvancedOptionId id, bool value)
 
 	case AdvancedOptionId::OpenTabsInForeground:
 		m_config->openTabsInForeground = value;
-		break;
-
-	case AdvancedOptionId::GoUpOnDoubleClick:
-		m_config->goUpOnDoubleClick = value;
 		break;
 
 	case AdvancedOptionId::QuickAccessInTreeView:

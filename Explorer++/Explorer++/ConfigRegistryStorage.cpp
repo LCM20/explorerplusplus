@@ -143,8 +143,6 @@ void LoadFromKey(HKEY settingsKey, Config &config)
 		config.globalFolderSettings.displayMixedFilesAndFolders);
 	RegistrySettings::Read32BitValueFromRegistry(settingsKey, L"UseNaturalSortOrder",
 		config.globalFolderSettings.useNaturalSortOrder);
-	RegistrySettings::Read32BitValueFromRegistry(settingsKey, L"GoUpOnDoubleClick",
-		config.goUpOnDoubleClick);
 	RegistrySettings::Read32BitValueFromRegistry(settingsKey, L"ShowHiddenGlobal",
 		config.defaultFolderSettings.showHidden);
 	RegistrySettings::Read32BitValueFromRegistry(settingsKey, L"ShowGridlinesGlobal",
@@ -305,7 +303,6 @@ void SaveToKey(HKEY settingsKey, const Config &config)
 		config.globalFolderSettings.displayMixedFilesAndFolders);
 	RegistrySettings::SaveDword(settingsKey, L"UseNaturalSortOrder",
 		config.globalFolderSettings.useNaturalSortOrder);
-	RegistrySettings::SaveDword(settingsKey, L"GoUpOnDoubleClick", config.goUpOnDoubleClick);
 	RegistrySettings::SaveDword(settingsKey, L"ShowHiddenGlobal",
 		config.defaultFolderSettings.showHidden);
 	RegistrySettings::SaveDword(settingsKey, L"ViewModeGlobal",

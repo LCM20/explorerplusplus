@@ -4,12 +4,16 @@
 
 #include "stdafx.h"
 #include "ShellBrowserImpl.h"
+#include "AppServices.h"
 #include "ColumnDataRetrieval.h"
 #include "ColumnHelper.h"
 #include "Columns.h"
 #include "Config.h"
 #include "ItemData.h"
+#include "LifespanHelper.h"
+#include "LifespanModel.h"
 #include "MainResource.h"
+#include "NotesModel.h"
 #include "ResourceHelper.h"
 #include "SortModes.h"
 #include "ViewModes.h"
@@ -25,14 +29,38 @@ void ShellBrowserImpl::QueueColumnTask(int itemInternalIndex, ColumnType columnT
 	BasicItemInfo_t basicItemInfo = getBasicItemInfo(itemInternalIndex);
 	GlobalFolderSettings globalFolderSettings = m_config->globalFolderSettings;
 
+	// Notes and lifespans are held in memory by their respective models, so the column text is
+	// resolved here, on the main thread. The result is then returned through the same asynchronous
+	// path used by the other columns. This is safe, since the models are only ever updated on the
+	// main thread.
+	std::optional<std::wstring> noteText;
+	std::optional<std::wstring> lifespanText;
+
+	if (columnType == ColumnType::Note)
+	{
+		noteText = m_appServices->GetNotesModel()->MaybeGetNote(
+			m_itemInfoMap.at(itemInternalIndex).parsingName);
+	}
+	else if (columnType == ColumnType::Lifespan)
+	{
+		auto expiryTime = m_appServices->GetLifespanModel()->MaybeGetLifespan(
+			m_itemInfoMap.at(itemInternalIndex).parsingName);
+
+		if (expiryTime)
+		{
+			lifespanText = LifespanHelper::FormatRemainingTime(*expiryTime,
+				m_appServices->GetResourceLoader());
+		}
+	}
+
 	auto result = m_columnThreadPool.push(
 		[listView = m_listView, columnResultID, columnType, itemInternalIndex, basicItemInfo,
-			globalFolderSettings](int id)
+			globalFolderSettings, noteText, lifespanText](int id)
 		{
 			UNREFERENCED_PARAMETER(id);
 
 			return GetColumnTextAsync(listView, columnResultID, columnType, itemInternalIndex,
-				basicItemInfo, globalFolderSettings);
+				basicItemInfo, globalFolderSettings, noteText, lifespanText);
 		});
 
 	// The function call above might finish before this line runs,
@@ -44,9 +72,31 @@ void ShellBrowserImpl::QueueColumnTask(int itemInternalIndex, ColumnType columnT
 
 ShellBrowserImpl::ColumnResult_t ShellBrowserImpl::GetColumnTextAsync(HWND listView,
 	int columnResultId, ColumnType columnType, int internalIndex,
-	const BasicItemInfo_t &basicItemInfo, const GlobalFolderSettings &globalFolderSettings)
+	const BasicItemInfo_t &basicItemInfo, const GlobalFolderSettings &globalFolderSettings,
+	const std::optional<std::wstring> &noteText, const std::optional<std::wstring> &lifespanText)
 {
-	std::wstring columnText = GetColumnText(columnType, basicItemInfo, globalFolderSettings);
+	std::wstring columnText;
+
+	if (columnType == ColumnType::Note)
+	{
+		// The note text was resolved on the main thread before this task was queued.
+		if (noteText)
+		{
+			columnText = *noteText;
+		}
+	}
+	else if (columnType == ColumnType::Lifespan)
+	{
+		// The lifespan text was resolved on the main thread before this task was queued.
+		if (lifespanText)
+		{
+			columnText = *lifespanText;
+		}
+	}
+	else
+	{
+		columnText = GetColumnText(columnType, basicItemInfo, globalFolderSettings);
+	}
 
 	// This message may be delivered before this function has returned.
 	// That doesn't actually matter, since the message handler will
@@ -464,6 +514,12 @@ SortMode ShellBrowserImpl::DetermineColumnSortMode(ColumnType columnType)
 
 	case ColumnType::MediaYear:
 		return SortMode::MediaYear;
+
+	case ColumnType::Note:
+		return SortMode::Note;
+
+	case ColumnType::Lifespan:
+		return SortMode::Lifespan;
 
 	default:
 		assert(false);

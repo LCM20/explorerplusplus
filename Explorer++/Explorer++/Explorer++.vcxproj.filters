@@ -268,6 +268,42 @@
     <ClCompile Include="NewMenuClient.cpp">
       <Filter>Context Menu Support\New Menu</Filter>
     </ClCompile>
+    <ClCompile Include="NotesModel.cpp">
+      <Filter>Notes</Filter>
+    </ClCompile>
+    <ClCompile Include="NotesOverviewDialog.cpp">
+      <Filter>Notes</Filter>
+    </ClCompile>
+    <ClCompile Include="AddNoteDialog.cpp">
+      <Filter>Notes</Filter>
+    </ClCompile>
+    <ClCompile Include="NotesRegistryStorage.cpp">
+      <Filter>Notes</Filter>
+    </ClCompile>
+    <ClCompile Include="NotesXmlStorage.cpp">
+      <Filter>Notes</Filter>
+    </ClCompile>
+    <ClCompile Include="LifespanModel.cpp">
+      <Filter>Lifespan</Filter>
+    </ClCompile>
+    <ClCompile Include="LifespanXmlStorage.cpp">
+      <Filter>Lifespan</Filter>
+    </ClCompile>
+    <ClCompile Include="LifespanRegistryStorage.cpp">
+      <Filter>Lifespan</Filter>
+    </ClCompile>
+    <ClCompile Include="LifespanHelper.cpp">
+      <Filter>Lifespan</Filter>
+    </ClCompile>
+    <ClCompile Include="LifespanEnforcer.cpp">
+      <Filter>Lifespan</Filter>
+    </ClCompile>
+    <ClCompile Include="LifespanOverviewDialog.cpp">
+      <Filter>Lifespan</Filter>
+    </ClCompile>
+    <ClCompile Include="SetLifespanDialog.cpp">
+      <Filter>Lifespan</Filter>
+    </ClCompile>
     <ClCompile Include="ShellView.cpp">
       <Filter>Context Menu Support</Filter>
     </ClCompile>
@@ -1257,6 +1293,42 @@
     <ClInclude Include="NewMenuClient.h">
       <Filter>Context Menu Support\New Menu</Filter>
     </ClInclude>
+    <ClInclude Include="NotesModel.h">
+      <Filter>Notes</Filter>
+    </ClInclude>
+    <ClInclude Include="NotesOverviewDialog.h">
+      <Filter>Notes</Filter>
+    </ClInclude>
+    <ClInclude Include="AddNoteDialog.h">
+      <Filter>Notes</Filter>
+    </ClInclude>
+    <ClInclude Include="NotesRegistryStorage.h">
+      <Filter>Notes</Filter>
+    </ClInclude>
+    <ClInclude Include="NotesXmlStorage.h">
+      <Filter>Notes</Filter>
+    </ClInclude>
+    <ClInclude Include="LifespanModel.h">
+      <Filter>Lifespan</Filter>
+    </ClInclude>
+    <ClInclude Include="LifespanXmlStorage.h">
+      <Filter>Lifespan</Filter>
+    </ClInclude>
+    <ClInclude Include="LifespanRegistryStorage.h">
+      <Filter>Lifespan</Filter>
+    </ClInclude>
+    <ClInclude Include="LifespanHelper.h">
+      <Filter>Lifespan</Filter>
+    </ClInclude>
+    <ClInclude Include="LifespanEnforcer.h">
+      <Filter>Lifespan</Filter>
+    </ClInclude>
+    <ClInclude Include="LifespanOverviewDialog.h">
+      <Filter>Lifespan</Filter>
+    </ClInclude>
+    <ClInclude Include="SetLifespanDialog.h">
+      <Filter>Lifespan</Filter>
+    </ClInclude>
     <ClInclude Include="ShellView.h">
       <Filter>Context Menu Support</Filter>
     </ClInclude>
@@ -2183,6 +2255,12 @@
     </Filter>
     <Filter Include="Tabs">
       <UniqueIdentifier>{e3b2a10c-f5d5-4d00-b7da-606ab09d32ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Notes">
+      <UniqueIdentifier>{7a6c1d2e-4b3f-4c8a-9d15-e8f2a0b3c4d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lifespan">
+      <UniqueIdentifier>{8b7d2e3f-5c4a-4d9b-8e26-f9a3b1c4d5e6}</UniqueIdentifier>
     </Filter>
     <Filter Include="Dialog Support">
       <UniqueIdentifier>{de7aee89-b700-43b0-b0ee-0f3e1c0e0414}</UniqueIdentifier>

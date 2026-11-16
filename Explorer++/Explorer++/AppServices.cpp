@@ -270,6 +270,21 @@ void AppServices::SetHistoryModel(HistoryModel *historyModel)
 	Set(historyModel);
 }
 
+LifespanModel *AppServices::GetLifespanModel()
+{
+	return Get<LifespanModel>();
+}
+
+const LifespanModel *AppServices::GetLifespanModel() const
+{
+	return Get<LifespanModel>();
+}
+
+void AppServices::SetLifespanModel(LifespanModel *lifespanModel)
+{
+	Set(lifespanModel);
+}
+
 ModelessDialogList *AppServices::GetModelessDialogList()
 {
 	return Get<ModelessDialogList>();
@@ -298,6 +313,21 @@ const NavigationEvents *AppServices::GetNavigationEvents() const
 void AppServices::SetNavigationEvents(NavigationEvents *navigationEvents)
 {
 	Set(navigationEvents);
+}
+
+NotesModel *AppServices::GetNotesModel()
+{
+	return Get<NotesModel>();
+}
+
+const NotesModel *AppServices::GetNotesModel() const
+{
+	return Get<NotesModel>();
+}
+
+void AppServices::SetNotesModel(NotesModel *notesModel)
+{
+	Set(notesModel);
 }
 
 PlatformContext *AppServices::GetPlatformContext()

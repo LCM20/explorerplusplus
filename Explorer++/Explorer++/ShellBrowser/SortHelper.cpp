@@ -384,3 +384,48 @@ int SortByMediaMetadata(const BasicItemInfo_t &itemInfo1, const BasicItemInfo_t 
 
 	return StrCmpLogicalW(mediaMetadata1.c_str(), mediaMetadata2.c_str());
 }
+
+int SortByNote(const std::optional<std::wstring> &note1, const std::optional<std::wstring> &note2)
+{
+	// When sorting in ascending order, items without a note are placed after items that have one.
+	if (!note1 && !note2)
+	{
+		return 0;
+	}
+
+	if (!note1)
+	{
+		return 1;
+	}
+
+	if (!note2)
+	{
+		return -1;
+	}
+
+	return StrCmpLogicalW(note1->c_str(), note2->c_str());
+}
+
+int SortByLifespan(const std::optional<FILETIME> &expiryTime1,
+	const std::optional<FILETIME> &expiryTime2)
+{
+	// When sorting in ascending order, items without a lifespan are placed after items that have
+	// one.
+	if (!expiryTime1 && !expiryTime2)
+	{
+		return 0;
+	}
+
+	if (!expiryTime1)
+	{
+		return 1;
+	}
+
+	if (!expiryTime2)
+	{
+		return -1;
+	}
+
+	// Items that expire first are placed first when sorting in ascending order.
+	return CompareFileTime(&*expiryTime1, &*expiryTime2);
+}

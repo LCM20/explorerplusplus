@@ -11,6 +11,8 @@
 #include "DefaultColumnXmlStorage.h"
 #include "DialogStorageHelper.h"
 #include "FrequentLocationsXmlStorage.h"
+#include "LifespanXmlStorage.h"
+#include "NotesXmlStorage.h"
 #include "RebarBandStorageData.h"
 #include "TabStorage.h"
 #include "WindowStorage.h"
@@ -67,6 +69,16 @@ void XmlAppStorage::LoadFrequentLocations(FrequentLocationsModel *frequentLocati
 	FrequentLocationsXmlStorage::Load(m_rootNode.get(), frequentLocationsModel);
 }
 
+void XmlAppStorage::LoadNotes(NotesModel *model)
+{
+	NotesXmlStorage::Load(m_rootNode.get(), model);
+}
+
+void XmlAppStorage::LoadLifespans(LifespanModel *model)
+{
+	LifespanXmlStorage::Load(m_rootNode.get(), model);
+}
+
 void XmlAppStorage::SaveConfig(const Config &config)
 {
 	ConfigXmlStorage::Save(m_xmlDocument.get(), m_rootNode.get(), config);
@@ -106,6 +118,16 @@ void XmlAppStorage::SaveFrequentLocations(const FrequentLocationsModel *frequent
 {
 	FrequentLocationsXmlStorage::Save(m_xmlDocument.get(), m_rootNode.get(),
 		frequentLocationsModel);
+}
+
+void XmlAppStorage::SaveNotes(const NotesModel *model)
+{
+	NotesXmlStorage::Save(m_xmlDocument.get(), m_rootNode.get(), model);
+}
+
+void XmlAppStorage::SaveLifespans(const LifespanModel *model)
+{
+	LifespanXmlStorage::Save(m_xmlDocument.get(), m_rootNode.get(), model);
 }
 
 void XmlAppStorage::Commit()

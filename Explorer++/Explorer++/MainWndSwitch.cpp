@@ -353,6 +353,30 @@ LRESULT Explorerplusplus::HandleMenuOrToolbarButtonOrAccelerator(HWND hwnd, UINT
 		OnSelectColumns();
 		break;
 
+	case IDM_NOTE_ADD:
+		OnAddNote();
+		break;
+
+	case IDM_NOTE_DELETE:
+		OnDeleteNote();
+		break;
+
+	case IDM_NOTE_OVERVIEW:
+		OnShowAllNotes();
+		break;
+
+	case IDM_LIFESPAN_SET:
+		OnSetLifespan();
+		break;
+
+	case IDM_LIFESPAN_CANCEL:
+		OnCancelLifespan();
+		break;
+
+	case IDM_LIFESPAN_OVERVIEW:
+		OnShowAllLifespans();
+		break;
+
 	case IDM_VIEW_AUTOSIZECOLUMNS:
 		m_commandController.ExecuteCommand(id);
 		break;
