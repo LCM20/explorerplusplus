@@ -94,13 +94,9 @@ void ShellBrowserImpl::RemoveFilteredItems()
 	{
 		int internalIndex = GetItemInternalIndex(i);
 
-		if (!((m_itemInfoMap.at(internalIndex).wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-				== FILE_ATTRIBUTE_DIRECTORY))
+		if (IsFilenameFiltered(m_itemInfoMap.at(internalIndex).displayName.c_str()))
 		{
-			if (IsFilenameFiltered(m_itemInfoMap.at(internalIndex).displayName.c_str()))
-			{
-				RemoveFilteredItem(i, internalIndex);
-			}
+			RemoveFilteredItem(i, internalIndex);
 		}
 	}
 
@@ -113,12 +109,24 @@ void ShellBrowserImpl::RemoveFilteredItem(int iItem, int iItemInternal)
 
 	const auto &item = m_itemInfoMap.at(iItemInternal);
 
+	// The item may be selected at the point at which it's filtered out. Deleting it won't generate an
+	// LVN_ITEMCHANGED notification, so the selection details need to be updated manually. This
+	// applies to both files and folders, since both can now be filtered out.
 	if (ListView_GetItemState(m_listView, iItem, LVIS_SELECTED) == LVIS_SELECTED)
 	{
-		ulFileSize.LowPart = item.wfd.nFileSizeLow;
-		ulFileSize.HighPart = item.wfd.nFileSizeHigh;
+		UpdateFileSelectionInfo(iItemInternal, FALSE);
+	}
 
-		m_directoryState.fileSelectionSize -= ulFileSize.QuadPart;
+	// As with the selection details above, no handler for LVN_DELETEITEM is present, so the count
+	// for the group the item belongs to needs to be updated manually.
+	if (m_folderSettings.showInGroups)
+	{
+		auto groupId = GetItemGroupId(iItem);
+
+		if (groupId)
+		{
+			OnItemRemovedFromGroup(*groupId);
+		}
 	}
 
 	/* Take the file size of the removed file away from the total
@@ -150,12 +158,18 @@ BOOL ShellBrowserImpl::IsFilenameFiltered(const TCHAR *FileName) const
 
 void ShellBrowserImpl::UnfilterAllItems()
 {
-	for (int internalIndex : m_directoryState.filteredItemsList)
+	// Restoring an item can result in it being added back into filteredItemsList. That happens when
+	// the filter text is changed while filtering is enabled: the item no longer matches the new
+	// text and is filtered out immediately as it's re-inserted into the listview. Iterating over the
+	// set while it's being modified isn't safe, so a copy is taken and the set is cleared first.
+	auto filteredItems = m_directoryState.filteredItemsList;
+	m_directoryState.filteredItemsList.clear();
+
+	for (int internalIndex : filteredItems)
 	{
 		RestoreFilteredItem(internalIndex);
 	}
 
-	m_directoryState.filteredItemsList.clear();
 	m_shellBrowserEvents->NotifyItemsChanged(this);
 }
 

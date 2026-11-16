@@ -1,9 +1,9 @@
 Filter
 ------
 
-Filtering allows certain files to be masked from view in the Files pane;
-**only** the files you specify (and folders) will be visible. This helps
-find files quickly, particularly in folders which contain a large number
+Filtering allows certain items to be masked from view in the Files pane;
+**only** the files and folders you specify will be visible. This helps
+find items quickly, particularly in folders which contain a large number
 of files, such as the *Windows* folder. Filtering can be applied on a
 tab-by-tab basis.
 
@@ -19,7 +19,7 @@ similar to **Wildcard Select**. See :ref:`here
 <menus/selection/wildcard_select:About wildcard patterns>` for a
 description of wildcard patterns. When the pattern is set (by clicking
 OK), then the filter is :ref:`applied <menus/view/filter:Apply Filter>`
-automatically to the current tab and only those files which are a match
+automatically to the current tab and only those items which are a match
 for the wildcard pattern are displayed.
 
 The **Set Filter...** dialog *drop-down* shows previous wildcard

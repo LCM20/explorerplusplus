@@ -294,7 +294,7 @@ void ShellBrowserImpl::UpdateItem(PCIDLIST_ABSOLUTE pidl, PCIDLIST_ABSOLUTE upda
 	// Items may be filtered out of the listview, so it's valid for an item not to be found.
 	if (!itemIndex)
 	{
-		if (!IsFileFiltered(updatedItemInfo))
+		if (!IsItemFiltered(updatedItemInfo))
 		{
 			UnfilterItem(*internalIndex);
 		}
@@ -309,7 +309,7 @@ void ShellBrowserImpl::UpdateItem(PCIDLIST_ABSOLUTE pidl, PCIDLIST_ABSOLUTE upda
 		m_directoryState.fileSelectionSize += newFileSize.QuadPart - oldFileSize.QuadPart;
 	}
 
-	if (IsFileFiltered(updatedItemInfo))
+	if (IsItemFiltered(updatedItemInfo))
 	{
 		RemoveFilteredItem(*itemIndex, *internalIndex);
 		return;

@@ -544,7 +544,7 @@ void ShellBrowserImpl::InsertAwaitingItems()
 	{
 		const auto &itemInfo = m_itemInfoMap.at(awaitingItem.iItemInternal);
 
-		if (IsFileFiltered(itemInfo))
+		if (IsItemFiltered(itemInfo))
 		{
 			m_directoryState.filteredItemsList.insert(awaitingItem.iItemInternal);
 			continue;
@@ -670,13 +670,13 @@ void ShellBrowserImpl::InsertAwaitingItems()
 	}
 }
 
-BOOL ShellBrowserImpl::IsFileFiltered(const ItemInfo_t &itemInfo) const
+BOOL ShellBrowserImpl::IsItemFiltered(const ItemInfo_t &itemInfo) const
 {
 	BOOL bHideSystemFile = FALSE;
 	BOOL bFilenameFiltered = FALSE;
 
-	if (m_folderSettings.filterEnabled
-		&& ((itemInfo.wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY))
+	// Both files and folders are subject to the filter.
+	if (m_folderSettings.filterEnabled)
 	{
 		bFilenameFiltered = IsFilenameFiltered(itemInfo.displayName.c_str());
 	}

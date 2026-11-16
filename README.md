@@ -20,7 +20,7 @@ Explorer++ is a lightweight and fast file manager for Windows.
 * Bookmark tabs
 * __Search__ for files using their name and attributes
 * Switch between icon, list, detail, thumbnail and tile view
-* Filter files
+* Filter files and folders
 
 ## Latest Builds
 

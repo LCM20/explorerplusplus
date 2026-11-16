@@ -737,8 +737,23 @@ BOOL ShellBrowserImpl::OnListViewGetEmptyMarkup(NMLVEMPTYMARKUP *emptyMarkup)
 {
 	emptyMarkup->dwFlags = EMF_CENTERED;
 
-	auto folderEmptyText = m_resourceLoader->LoadString(IDS_LISTVIEW_FOLDER_EMPTY);
-	StringCchCopy(emptyMarkup->szMarkup, std::size(emptyMarkup->szMarkup), folderEmptyText.c_str());
+	// Both files and folders can be filtered out, so when filtering is active and has hidden
+	// something, reporting that the folder itself is empty would be misleading. Translations are
+	// maintained separately and may not contain this string yet, so if it's missing the original
+	// message is used instead.
+	std::wstring emptyText;
+
+	if (m_folderSettings.filterEnabled && !m_directoryState.filteredItemsList.empty())
+	{
+		emptyText = m_resourceLoader->MaybeLoadString(IDS_FILTER_NO_MATCH_ITEMS).value_or(L"");
+	}
+
+	if (emptyText.empty())
+	{
+		emptyText = m_resourceLoader->LoadString(IDS_LISTVIEW_FOLDER_EMPTY);
+	}
+
+	StringCchCopy(emptyMarkup->szMarkup, std::size(emptyMarkup->szMarkup), emptyText.c_str());
 
 	return TRUE;
 }

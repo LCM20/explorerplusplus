@@ -395,7 +395,7 @@ private:
 	std::vector<ItemInfo_t> GetItemInformationFromPidls(const NavigationRequest *request,
 		const std::vector<PidlChild> &itemPidls);
 	void InsertAwaitingItems();
-	BOOL IsFileFiltered(const ItemInfo_t &itemInfo) const;
+	BOOL IsItemFiltered(const ItemInfo_t &itemInfo) const;
 	std::optional<int> AddItemInternal(IShellFolder *shellFolder, PCIDLIST_ABSOLUTE pidlDirectory,
 		PCITEMID_CHILD pidlChild, int itemIndex, BOOL setPosition);
 	int AddItemInternal(int itemIndex, const ItemInfo_t &itemInfo, BOOL setPosition);
