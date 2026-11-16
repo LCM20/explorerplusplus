@@ -57,8 +57,9 @@ private:
 
 	// AddressBarViewDelegate
 	bool OnKeyPressed(UINT key) override;
-	void OnBeginDrag() override;
+	void OnBeginDrag(PCIDLIST_ABSOLUTE pidl) override;
 	void OnFocused() override;
+	void OnSegmentSelected(PCIDLIST_ABSOLUTE pidl) override;
 
 	void OnEnterPressed();
 	void OnEscapePressed();

@@ -123,11 +123,16 @@ void AddressBar::OnEscapePressed()
 	}
 }
 
-void AddressBar::OnBeginDrag()
+void AddressBar::OnBeginDrag(PCIDLIST_ABSOLUTE pidl)
 {
-	const auto *shellBrowser = m_browser->GetActiveShellBrowser();
-	const auto &pidl = shellBrowser->GetDirectory();
-	StartDragForShellItems({ pidl.Raw() }, DROPEFFECT_LINK);
+	StartDragForShellItems({ pidl }, DROPEFFECT_LINK);
+}
+
+void AddressBar::OnSegmentSelected(PCIDLIST_ABSOLUTE pidl)
+{
+	m_browser->OpenItem(pidl,
+		DetermineOpenDisposition(false, IsKeyDown(VK_CONTROL), IsKeyDown(VK_SHIFT)));
+	m_browser->FocusActiveTab();
 }
 
 void AddressBar::OnFocused()
@@ -178,7 +183,7 @@ void AddressBar::UpdateTextAndIcon(const ShellBrowser *shellBrowser, IconUpdateT
 	}
 
 	auto fullPathForDisplay = GetFolderPathForDisplayWithFallback(pidl.Raw());
-	m_view->UpdateTextAndIcon(fullPathForDisplay, iconIndex);
+	m_view->UpdateTextAndIcon(fullPathForDisplay, iconIndex, &pidl);
 }
 
 concurrencpp::null_result AddressBar::RetrieveUpdatedIcon(WeakPtr<AddressBar> weakSelf,
