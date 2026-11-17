@@ -10,8 +10,8 @@
 TabBarView::TabBarView(ViewBase *parent, const ThemeManager *themeManager, const Config *config,
 	const ResourceLoader *resourceLoader) :
 	TabView(parent,
-		WS_CHILD | TCS_FOCUSNEVER | TCS_MULTILINE | TCS_TOOLTIPS | WS_CLIPSIBLINGS
-			| WS_CLIPCHILDREN,
+		WS_CHILD | TCS_FOCUSNEVER | TCS_MULTILINE | TCS_RAGGEDRIGHT | TCS_TOOLTIPS
+			| WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
 		themeManager, config, resourceLoader),
 	m_imageListManager(resourceLoader, DpiCompatibility::GetInstance().GetDpiForWindow(GetHWND()))
 {
