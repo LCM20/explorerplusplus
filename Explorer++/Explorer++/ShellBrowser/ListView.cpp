@@ -70,6 +70,31 @@ const std::vector<ColumnType> COMMON_RECYCLE_BIN_COLUMNS = { ColumnType::Name,
 	ColumnType::OriginalLocation, ColumnType::DateDeleted, ColumnType::Size, ColumnType::Type,
 	ColumnType::DateModified };
 
+namespace
+{
+
+// Updates the width of the given column type in every column set, so that the same column type
+// always has a consistent width across the different folder types (real folders, My Computer,
+// Control Panel, etc.).
+void UpdateColumnWidthAcrossSets(FolderColumns &folderColumns, ColumnType type, int width)
+{
+	for (auto *columnSet : { &folderColumns.realFolderColumns, &folderColumns.myComputerColumns,
+			 &folderColumns.controlPanelColumns, &folderColumns.recycleBinColumns,
+			 &folderColumns.printersColumns, &folderColumns.networkConnectionsColumns,
+			 &folderColumns.myNetworkPlacesColumns })
+	{
+		for (auto &column : *columnSet)
+		{
+			if (column.type == type)
+			{
+				column.width = width;
+			}
+		}
+	}
+}
+
+}
+
 std::vector<ColumnType> GetColumnHeaderMenuList(const std::wstring &directory);
 
 LRESULT ShellBrowserImpl::ListViewProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -1147,6 +1172,13 @@ void ShellBrowserImpl::OnListViewHeaderItemChanged(const NMHEADER *changeInfo)
 
 	auto &targetColumn = view.front();
 	targetColumn.width = changeInfo->pitem->cxy;
+
+	// Apply the new width to the same column type across all folder types, both in this tab and
+	// globally. This keeps column widths consistent when navigating between folders of different
+	// types, and also ensures new tabs inherit the width (and it gets persisted).
+	UpdateColumnWidthAcrossSets(m_folderColumns, targetColumn.type, changeInfo->pitem->cxy);
+	UpdateColumnWidthAcrossSets(m_appServices->GetConfig()->globalFolderSettings.folderColumns,
+		targetColumn.type, changeInfo->pitem->cxy);
 }
 
 void ShellBrowserImpl::OnListViewHeaderEndDrag(const NMHEADER *changeInfo)
