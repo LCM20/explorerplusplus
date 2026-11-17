@@ -464,6 +464,13 @@ void ShellBrowserImpl::OnNavigationComitted(const NavigationRequest *request)
 	AddNavigationItems(request, request->GetItems());
 	SelectItems(GetItemsToSelectAfterNavigation(request));
 
+	// The note and lifespan column text is normally populated asynchronously (via
+	// LVN_GETDISPINFO). However, refreshing the folder (e.g. when the columns are reordered)
+	// repopulates the list view from scratch, which can leave these columns empty. Refreshing them
+	// here ensures their text is shown correctly after a navigation.
+	RefreshNoteColumn();
+	RefreshLifespanColumn();
+
 	SetNavigationState(NavigationState::Committed);
 }
 
