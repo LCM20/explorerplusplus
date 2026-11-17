@@ -30,6 +30,7 @@ const ToolbarButtonMapping::value_type g_xmlButtonMappingValues[] = {
 	{ MainToolbarButtonId::MoveTo, L"Move To" },
 	{ MainToolbarButtonId::NewFolder, L"New Folder" },
 	{ MainToolbarButtonId::Copy, L"Copy" },
+	{ MainToolbarButtonId::CopyItemPath, L"Copy File Paths" },
 	{ MainToolbarButtonId::Cut, L"Cut" },
 	{ MainToolbarButtonId::Paste, L"Paste" },
 	{ MainToolbarButtonId::Delete, L"Delete" },

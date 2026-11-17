@@ -44,6 +44,7 @@ constexpr MainToolbarButtonId DEFAULT_TOOLBAR_BUTTONS[] = {
 	MainToolbarButtonId::Separator,
 	MainToolbarButtonId::Cut,
 	MainToolbarButtonId::Copy,
+	MainToolbarButtonId::CopyItemPath,
 	MainToolbarButtonId::Paste,
 	MainToolbarButtonId::Delete,
 	MainToolbarButtonId::DeletePermanently,
@@ -77,6 +78,7 @@ constexpr auto BUTTON_ICON_MAPPINGS = std::to_array<ButtonIconMapping>({
 	{ MainToolbarButtonId::MoveTo, Icon::MoveTo },
 	{ MainToolbarButtonId::NewFolder, Icon::NewFolder },
 	{ MainToolbarButtonId::Copy, Icon::Copy },
+	{ MainToolbarButtonId::CopyItemPath, Icon::Copy },
 	{ MainToolbarButtonId::Cut, Icon::Cut },
 	{ MainToolbarButtonId::Paste, Icon::Paste },
 	{ MainToolbarButtonId::Delete, Icon::Delete },
@@ -637,6 +639,8 @@ void MainToolbar::UpdateToolbarButtonStates()
 	EnableButton(MainToolbarButtonId::Up, browserController->IsCommandEnabled(IDM_GO_UP));
 	EnableButton(MainToolbarButtonId::Cut, browserController->IsCommandEnabled(IDM_EDIT_CUT));
 	EnableButton(MainToolbarButtonId::Copy, browserController->IsCommandEnabled(IDM_EDIT_COPY));
+	EnableButton(MainToolbarButtonId::CopyItemPath,
+		browserController->IsCommandEnabled(IDM_FILE_COPYITEMPATH));
 	EnableButton(MainToolbarButtonId::MoveTo,
 		browserController->IsCommandEnabled(IDM_EDIT_MOVETOFOLDER));
 	EnableButton(MainToolbarButtonId::CopyTo,
@@ -757,6 +761,10 @@ std::wstring GetButtonText(MainToolbarButtonId buttonId, const ResourceLoader *r
 
 	case MainToolbarButtonId::Copy:
 		stringId = IDS_TOOLBAR_COPY;
+		break;
+
+	case MainToolbarButtonId::CopyItemPath:
+		stringId = IDS_TOOLBAR_COPYITEMPATH;
 		break;
 
 	case MainToolbarButtonId::Cut:

@@ -211,6 +211,10 @@ LRESULT Explorerplusplus::HandleMenuOrToolbarButtonOrAccelerator(HWND hwnd, UINT
 		m_commandController.ExecuteCommand(IDM_FILE_OPENCOMMANDPROMPTADMINISTRATOR);
 		break;
 
+	case ToUnderlying(MainToolbarButtonId::CopyItemPath):
+		m_commandController.ExecuteCommand(IDM_FILE_COPYITEMPATH);
+		break;
+
 	case IDM_FILE_COPYFOLDERPATH:
 	case IDM_FILE_COPYITEMPATH:
 	case IDM_FILE_COPYUNIVERSALFILEPATHS:

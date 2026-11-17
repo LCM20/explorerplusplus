@@ -34,12 +34,13 @@ enum class MainToolbarButtonId
 	DeletePermanently = 45022,
 	SplitFile = 45023,
 	MergeFiles = 45024,
-	CloseTab = 45025
+	CloseTab = 45025,
+	CopyItemPath = 45026
 };
 
 template <>
 struct magic_enum::customize::enum_range<MainToolbarButtonId>
 {
 	static constexpr int min = 45001;
-	static constexpr int max = 45025;
+	static constexpr int max = 45026;
 };
