@@ -56,39 +56,16 @@ FILETIME GetExpiryTimeFromNow(int days)
 	return expiryTime;
 }
 
-FILETIME GetPermanentExpiryTime()
-{
-	FILETIME expiryTime;
-	expiryTime.dwHighDateTime = 0x7FFFFFFF;
-	expiryTime.dwLowDateTime = 0xFFFFFFFF;
-	return expiryTime;
-}
-
 bool IsExpired(const FILETIME &expiryTime)
 {
-	if (IsPermanent(expiryTime))
-	{
-		return false;
-	}
-
 	FILETIME now;
 	GetSystemTimeAsFileTime(&now);
 
 	return CompareFileTime(&expiryTime, &now) <= 0;
 }
 
-bool IsPermanent(const FILETIME &expiryTime)
-{
-	return expiryTime.dwHighDateTime == 0x7FFFFFFF && expiryTime.dwLowDateTime == 0xFFFFFFFF;
-}
-
 std::wstring FormatRemainingTime(const FILETIME &expiryTime, const ResourceLoader *resourceLoader)
 {
-	if (IsPermanent(expiryTime))
-	{
-		return resourceLoader->LoadString(IDS_LIFESPAN_PERMANENT);
-	}
-
 	auto remainingIntervals = GetRemainingIntervals(expiryTime);
 
 	if (remainingIntervals == 0)

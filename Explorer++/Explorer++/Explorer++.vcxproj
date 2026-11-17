@@ -1457,7 +1457,6 @@
     <ClCompile Include="LifespanEnforcer.cpp" />
     <ClCompile Include="LifespanOverviewDialog.cpp" />
     <ClCompile Include="SetLifespanDialog.cpp" />
-    <ClCompile Include="LifespanMenu.cpp" />
     <ClCompile Include="BrowserView.cpp" />
     <ClCompile Include="AcceleratorHelper.cpp" />
     <ClCompile Include="ServiceProvider.cpp" />
@@ -1880,7 +1879,6 @@
     <ClInclude Include="LifespanEnforcer.h" />
     <ClInclude Include="LifespanOverviewDialog.h" />
     <ClInclude Include="SetLifespanDialog.h" />
-    <ClInclude Include="LifespanMenu.h" />
     <ClInclude Include="ServiceProvider.h" />
     <ClInclude Include="Plugins\LuaPlugin.h" />
     <ClInclude Include="MainResource.h" />

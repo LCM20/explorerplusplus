@@ -304,9 +304,6 @@
     <ClCompile Include="SetLifespanDialog.cpp">
       <Filter>Lifespan</Filter>
     </ClCompile>
-    <ClCompile Include="LifespanMenu.cpp">
-      <Filter>Lifespan</Filter>
-    </ClCompile>
     <ClCompile Include="ShellView.cpp">
       <Filter>Context Menu Support</Filter>
     </ClCompile>
@@ -1330,9 +1327,6 @@
       <Filter>Lifespan</Filter>
     </ClInclude>
     <ClInclude Include="SetLifespanDialog.h">
-      <Filter>Lifespan</Filter>
-    </ClInclude>
-    <ClInclude Include="LifespanMenu.h">
       <Filter>Lifespan</Filter>
     </ClInclude>
     <ClInclude Include="ShellView.h">

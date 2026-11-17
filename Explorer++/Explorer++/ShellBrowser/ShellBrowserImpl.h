@@ -178,11 +178,6 @@ public:
 	// listview (e.g. through the lifespan overview dialog).
 	void RefreshLifespanColumn();
 
-	// Shows the dropdown menu used to set or clear a lifespan. If the item at itemIndex is
-	// currently selected, the menu applies to all selected items; otherwise, it applies to that
-	// item only.
-	void ShowLifespanMenu(int itemIndex, const POINT &ptScreen);
-
 	// BrowserCommandTarget
 	bool IsCommandEnabled(int command) const override;
 	void ExecuteCommand(int command) override;
