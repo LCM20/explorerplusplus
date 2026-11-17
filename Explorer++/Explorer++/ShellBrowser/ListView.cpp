@@ -13,6 +13,7 @@
 #include "IconFetcher.h"
 #include "ItemData.h"
 #include "LifespanHelper.h"
+#include "LifespanMenu.h"
 #include "LifespanModel.h"
 #include "LabelEditHandler.h"
 #include "MainResource.h"
@@ -266,14 +267,27 @@ LRESULT ShellBrowserImpl::ListViewParentProc(HWND hwnd, UINT uMsg, WPARAM wParam
 
 void ShellBrowserImpl::OnListViewClick(const NMITEMACTIVATE *eventInfo)
 {
+	// A click on the lifespan column should show the lifespan dropdown menu, rather than opening
+	// the item. This is checked before the one-click activate setting, so that it works whether or
+	// not that setting is enabled.
+	LVHITTESTINFO htInfo = {};
+	htInfo.pt = eventInfo->ptAction;
+	int hitItem = ListView_SubItemHitTest(m_listView, &htInfo);
+
+	auto clickedColumnType = GetColumnTypeByIndex(htInfo.iSubItem);
+
+	if (hitItem != -1 && clickedColumnType && *clickedColumnType == ColumnType::Lifespan)
+	{
+		POINT ptScreen = eventInfo->ptAction;
+		ClientToScreen(m_listView, &ptScreen);
+		ShowLifespanMenu(hitItem, ptScreen);
+		return;
+	}
+
 	if (!m_config->globalFolderSettings.oneClickActivate.get())
 	{
 		return;
 	}
-
-	LVHITTESTINFO htInfo = {};
-	htInfo.pt = eventInfo->ptAction;
-	ListView_HitTest(m_listView, &htInfo);
 
 	if (WI_IsFlagSet(htInfo.flags, LVHT_ONITEMSTATEICON) && m_config->checkBoxSelection.get())
 	{
@@ -282,6 +296,36 @@ void ShellBrowserImpl::OnListViewClick(const NMITEMACTIVATE *eventInfo)
 	}
 
 	OnListViewDoubleClick(eventInfo);
+}
+
+void ShellBrowserImpl::ShowLifespanMenu(int itemIndex, const POINT &ptScreen)
+{
+	std::vector<std::wstring> paths;
+
+	if (ListView_GetItemState(m_listView, itemIndex, LVIS_SELECTED) & LVIS_SELECTED)
+	{
+		int index = -1;
+
+		while ((index = ListView_GetNextItem(m_listView, index, LVNI_SELECTED)) != -1)
+		{
+			paths.push_back(GetItemFullName(index));
+		}
+	}
+	else
+	{
+		paths.push_back(GetItemFullName(itemIndex));
+	}
+
+	if (paths.empty())
+	{
+		return;
+	}
+
+	PopupMenuView popupMenu(m_owner, m_browser);
+	LifespanMenu menu(&popupMenu, m_appServices->GetAcceleratorManager(),
+		m_appServices->GetLifespanModel(), this, std::move(paths), m_owner,
+		m_appServices->GetResourceLoader());
+	popupMenu.Show(ptScreen);
 }
 
 void ShellBrowserImpl::OnListViewDoubleClick(const NMITEMACTIVATE *eventInfo)
@@ -1661,6 +1705,41 @@ BOOL ShellBrowserImpl::OnListViewEndLabelEdit(const NMLVDISPINFO *dispInfo)
 	return FALSE;
 }
 
+namespace
+{
+
+// Draws a small downward-pointing arrow at the right edge of the subitem. This indicates that the
+// lifespan column can be clicked to show a dropdown menu.
+void DrawLifespanDropDownArrow(HDC hdc, const RECT &subItemRect)
+{
+	const int arrowHalfWidth = 4;
+	const int arrowHeight = 4;
+
+	int centerX = subItemRect.right - 10;
+	int centerY = subItemRect.top + (subItemRect.bottom - subItemRect.top) / 2;
+
+	POINT points[3] = { { centerX - arrowHalfWidth, centerY - arrowHeight / 2 },
+		{ centerX + arrowHalfWidth, centerY - arrowHeight / 2 },
+		{ centerX, centerY + arrowHeight / 2 } };
+
+	COLORREF arrowColor = GetSysColor(COLOR_GRAYTEXT);
+	HBRUSH brush = CreateSolidBrush(arrowColor);
+	HPEN pen = CreatePen(PS_SOLID, 1, arrowColor);
+
+	HGDIOBJ oldBrush = SelectObject(hdc, brush);
+	HGDIOBJ oldPen = SelectObject(hdc, pen);
+
+	Polygon(hdc, points, 3);
+
+	SelectObject(hdc, oldPen);
+	SelectObject(hdc, oldBrush);
+
+	DeleteObject(pen);
+	DeleteObject(brush);
+}
+
+}
+
 LRESULT ShellBrowserImpl::OnListViewCustomDraw(NMLVCUSTOMDRAW *listViewCustomDraw)
 {
 	switch (listViewCustomDraw->nmcd.dwDrawStage)
@@ -1709,8 +1788,20 @@ LRESULT ShellBrowserImpl::OnListViewCustomDraw(NMLVCUSTOMDRAW *listViewCustomDra
 			if (matchedFileName && matchedAttributes)
 			{
 				listViewCustomDraw->clrText = colorRule->GetColor();
-				return CDRF_NEWFONT;
+				return CDRF_NEWFONT | CDRF_NOTIFYSUBITEMDRAW;
 			}
+		}
+
+		return CDRF_NOTIFYSUBITEMDRAW;
+	}
+
+	case CDDS_SUBITEM | CDDS_ITEMPOSTPAINT:
+	{
+		auto columnType = GetColumnTypeByIndex(listViewCustomDraw->iSubItem);
+
+		if (columnType && *columnType == ColumnType::Lifespan)
+		{
+			DrawLifespanDropDownArrow(listViewCustomDraw->nmcd.hdc, listViewCustomDraw->nmcd.rc);
 		}
 	}
 	break;
