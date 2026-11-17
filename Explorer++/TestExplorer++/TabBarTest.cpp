@@ -484,19 +484,6 @@ TEST_F(TabBarTest, CloseTabWhenLocked)
 		ElementsAre(Property(&Tab::GetId, tabId1), Property(&Tab::GetId, tabId2)));
 }
 
-TEST_F(TabBarTest, CloseButtonClick)
-{
-	int tabId1 = m_browser->AddTabAndReturnId(L"c:\\");
-	m_browser->AddTab(L"d:\\");
-
-	auto *view = m_tabBar->GetView();
-	TabViewTestApi testApi(view);
-
-	auto layout = testApi.GetTabContentLayout(1);
-	SimulateClick(view->GetHWND(), { layout.closeButton.left, layout.closeButton.top });
-	EXPECT_THAT(m_tabBar->GetAllTabsInOrder(), ElementsAre(Property(&Tab::GetId, tabId1)));
-}
-
 TEST_F(TabBarTest, GetAllTabs)
 {
 	const auto *tab1 = m_browser->AddTab(L"c:\\");
@@ -520,24 +507,14 @@ TEST_F(TabBarTest, GetAllTabsInOrder)
 TEST_F(TabBarTest, DoubleClickOnTab)
 {
 	int tabId1 = m_browser->AddTabAndReturnId(L"c:\\");
-	int tabId2 = m_browser->AddTabAndReturnId(L"d:\\");
+	m_browser->AddTab(L"d:\\");
 	int tabId3 = m_browser->AddTabAndReturnId(L"e:\\");
 
-	m_config.doubleClickTabClose = false;
-
-	// This should have no effect, since the doubleClickTabClose is disabled.
+	// Double-clicking a tab should close it.
 	auto *tabViewItem = m_tabBar->GetView()->GetTabAtIndex(1);
 	tabViewItem->OnDoubleClicked({ { 0, 0 }, false, false });
 	EXPECT_THAT(m_tabBar->GetAllTabsInOrder(),
-		ElementsAre(Property(&Tab::GetId, tabId1), Property(&Tab::GetId, tabId2),
-			Property(&Tab::GetId, tabId3)));
-
-	m_config.doubleClickTabClose = true;
-
-	tabViewItem = m_tabBar->GetView()->GetTabAtIndex(0);
-	tabViewItem->OnDoubleClicked({ { 0, 0 }, false, false });
-	EXPECT_THAT(m_tabBar->GetAllTabsInOrder(),
-		ElementsAre(Property(&Tab::GetId, tabId2), Property(&Tab::GetId, tabId3)));
+		ElementsAre(Property(&Tab::GetId, tabId1), Property(&Tab::GetId, tabId3)));
 }
 
 TEST_F(TabBarTest, MiddleClickOnTab)

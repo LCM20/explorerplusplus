@@ -9,12 +9,10 @@
 class TabViewTestApi
 {
 public:
-	using TabPart = TabView::TabPart;
-
 	TabViewTestApi(TabView *view);
 
 	void Paint(HDC hdc, const RECT &paintRect);
-	void SetHotItemDetails(int index, TabPart part);
+	void SetHotItemDetails(int index);
 	void ClearHotItemDetails();
 	RECT GetTabRect(int index) const;
 	TabView::TabContentLayout GetTabContentLayout(int index) const;

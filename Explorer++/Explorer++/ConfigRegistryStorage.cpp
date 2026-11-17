@@ -80,8 +80,6 @@ void LoadFromKey(HKEY settingsKey, Config &config)
 		config.globalFolderSettings.oneClickActivate);
 	RegistrySettings::Read32BitValueFromRegistry(settingsKey, L"OneClickActivateHoverTime",
 		config.globalFolderSettings.oneClickActivateHoverTime);
-	RegistrySettings::Read32BitValueFromRegistry(settingsKey, L"DoubleClickTabClose",
-		config.doubleClickTabClose);
 
 	auto res = RegistrySettings::Read32BitValueFromRegistry(settingsKey, L"OpenContainerFiles",
 		config.openContainerFiles);
@@ -273,7 +271,6 @@ void SaveToKey(HKEY settingsKey, const Config &config)
 		config.globalFolderSettings.oneClickActivate.get());
 	RegistrySettings::SaveDword(settingsKey, L"OneClickActivateHoverTime",
 		config.globalFolderSettings.oneClickActivateHoverTime.get());
-	RegistrySettings::SaveDword(settingsKey, L"DoubleClickTabClose", config.doubleClickTabClose);
 	RegistrySettings::SaveDword(settingsKey, L"OpenContainerFiles", config.openContainerFiles);
 	RegistrySettings::SaveDword(settingsKey, L"InsertSorted",
 		config.globalFolderSettings.insertSorted);

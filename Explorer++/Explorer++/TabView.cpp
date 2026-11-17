@@ -41,11 +41,6 @@ void TabViewItem::SetRightClickedCallback(MouseEventCallback rightClickedCallbac
 	m_rightClickedCallback = std::move(rightClickedCallback);
 }
 
-void TabViewItem::SetClosedCallback(ClosedCallback closedCallback)
-{
-	m_closedCallback = std::move(closedCallback);
-}
-
 void TabViewItem::OnDoubleClicked(const MouseEvent &event)
 {
 	if (m_doubleClickedCallback)
@@ -67,14 +62,6 @@ void TabViewItem::OnRightClicked(const MouseEvent &event)
 	if (m_rightClickedCallback)
 	{
 		m_rightClickedCallback(event);
-	}
-}
-
-void TabViewItem::OnClosed()
-{
-	if (m_closedCallback)
-	{
-		m_closedCallback();
 	}
 }
 
@@ -303,9 +290,9 @@ LRESULT TabView::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_MOUSELEAVE:
-		if (m_hotItemDetails)
+		if (m_hotItemIndex)
 		{
-			m_hotItemDetails.reset();
+			m_hotItemIndex.reset();
 			InvalidateRect(GetHWND(), nullptr, false);
 		}
 		break;
@@ -441,20 +428,9 @@ bool TabView::OnLeftButtonDown(const POINT &pt)
 	}
 
 	DCHECK(!m_leftButtonDownPoint);
-	DCHECK(!m_pressedCloseButtonIndex);
 	DCHECK(!m_tabDragState);
 
 	SetCapture(GetHWND());
-
-	auto layout = GetTabContentLayout(*index);
-
-	if (PtInRect(&layout.closeButton, pt))
-	{
-		// In this case, the left button has gone down on one of the close buttons. The associated
-		// tab shouldn't be selected, so the event is consumed.
-		m_pressedCloseButtonIndex = *index;
-		return true;
-	}
 
 	m_leftButtonDownPoint = pt;
 
@@ -463,29 +439,9 @@ bool TabView::OnLeftButtonDown(const POINT &pt)
 
 void TabView::OnLeftButtonUp(const POINT &pt)
 {
-	MaybeHandleCloseClick(pt);
+	UNREFERENCED_PARAMETER(pt);
 
 	ReleaseCapture();
-}
-
-void TabView::MaybeHandleCloseClick(const POINT &pt)
-{
-	auto index = MaybeGetIndexOfTabAtPoint(pt);
-
-	if (!index || index != m_pressedCloseButtonIndex)
-	{
-		return;
-	}
-
-	auto layout = GetTabContentLayout(*index);
-
-	if (!PtInRect(&layout.closeButton, pt))
-	{
-		return;
-	}
-
-	auto *tabItem = GetTabAtIndex(*index);
-	tabItem->OnClosed();
 }
 
 void TabView::OnMouseMove(const POINT &pt)
@@ -510,22 +466,14 @@ void TabView::OnMouseMove(const POINT &pt)
 
 void TabView::UpdateHotItemDetails(const POINT &pt)
 {
-	std::optional<HotItemDetails> hotItemDetails;
 	auto hotItemIndex = MaybeGetIndexOfTabAtPoint(pt);
 
-	if (hotItemIndex)
-	{
-		auto layout = GetTabContentLayout(*hotItemIndex);
-		hotItemDetails = HotItemDetails{ *hotItemIndex,
-			PtInRect(&layout.closeButton, pt) ? TabPart::CloseButton : TabPart::Body };
-	}
-
-	if (hotItemDetails == m_hotItemDetails)
+	if (hotItemIndex == m_hotItemIndex)
 	{
 		return;
 	}
 
-	m_hotItemDetails = hotItemDetails;
+	m_hotItemIndex = hotItemIndex;
 	InvalidateRect(GetHWND(), nullptr, false);
 }
 
@@ -625,7 +573,6 @@ void TabView::OnCaptureChanged(HWND target)
 	if (target != GetHWND())
 	{
 		m_leftButtonDownPoint.reset();
-		m_pressedCloseButtonIndex.reset();
 		m_tabDragState.reset();
 		m_middleClickItemIndex.reset();
 	}
@@ -712,16 +659,6 @@ void TabView::UpdateDpiDependentResources()
 {
 	auto &dpiCompat = DpiCompatibility::GetInstance();
 	UINT dpi = dpiCompat.GetDpiForWindow(GetHWND());
-	int iconWidth = dpiCompat.GetSystemMetricsForDpi(SM_CXSMICON, dpi);
-	int iconHeight = dpiCompat.GetSystemMetricsForDpi(SM_CYSMICON, dpi);
-	m_closeIconImageList.reset(
-		ImageList_Create(iconWidth, iconHeight, ILC_COLOR32 | ILC_MASK, 1, 0));
-	CHECK(m_closeIconImageList);
-
-	wil::unique_hbitmap closeIcon =
-		m_resourceLoader->LoadBitmapFromPNGAndScale(Icon::CloseButton, iconWidth, iconHeight);
-	m_closeIconImageIndex = ImageList_Add(m_closeIconImageList.get(), closeIcon.get(), nullptr);
-	CHECK_NE(m_closeIconImageIndex, -1);
 
 	m_horizontalPadding = dpiCompat.GetSystemMetricsForDpi(SM_CXEDGE, dpi) * 3;
 	DCHECK_NE(m_horizontalPadding, 0);
@@ -729,20 +666,10 @@ void TabView::UpdateDpiDependentResources()
 	int verticalPadding = dpiCompat.GetSystemMetricsForDpi(SM_CYEDGE, dpi) * 3 / 2;
 	DCHECK_NE(verticalPadding, 0);
 
-	// It's assumed that the control will apply the padding 3 times:
+	// The control applies the padding three times, which matches the custom layout drawn below:
 	//
 	// padding | icon | padding | text | padding
-	//
-	// In the custom layout drawn below, the following is required:
-	//
-	// padding | icon | padding | text | padding | close button | padding
-	//
-	// So, 4 * padding + close button width will be represented by the 3 * padding that the control
-	// actually uses.
-	//
-	// Note that the result is round up as per https://stackoverflow.com/a/2745086.
-	int finalHorizontalPadding = (4 * m_horizontalPadding + iconWidth + 2) / 3;
-	TabCtrl_SetPadding(GetHWND(), finalHorizontalPadding, verticalPadding);
+	TabCtrl_SetPadding(GetHWND(), m_horizontalPadding, verticalPadding);
 }
 
 void TabView::OnPaint()
@@ -760,7 +687,7 @@ void TabView::Paint(HDC hdc, const RECT &paintRect)
 
 	// Conversely, it's expected that these styles will always be set and there is no handling for
 	// any case where they're not set.
-	CHECK(WI_AreAllFlagsSet(style, TCS_FOCUSNEVER | TCS_SINGLELINE));
+	CHECK(WI_AreAllFlagsSet(style, TCS_FOCUSNEVER | TCS_MULTILINE));
 
 	// Fill in the background from the parent control. This is what the control does normally.
 	HRESULT hr = DrawThemeParentBackground(GetHWND(), hdc, &paintRect);
@@ -824,11 +751,11 @@ void TabView::Paint(HDC hdc, const RECT &paintRect)
 
 void TabView::DrawTab(HDC hdc, int index)
 {
-	bool isHot = (m_hotItemDetails && index == m_hotItemDetails->index);
+	bool isHot = (m_hotItemIndex && index == *m_hotItemIndex);
 	int selectedIndex = TabCtrl_GetCurSel(GetHWND());
 	bool isSelected = (index == selectedIndex);
 
-	auto itemRect = GetTabRectForPainting(index);
+	auto itemRect = GetTabRect(index);
 	RECT backgroundRect = itemRect;
 
 	if (isSelected)
@@ -852,23 +779,29 @@ void TabView::DrawTab(HDC hdc, int index)
 	Gdiplus::Pen borderPen(borderColor);
 	Gdiplus::Status status;
 
-	if (index == 0)
+	// The first tab in the control is the first tab in its row, so its left border is drawn here.
+	// Any other tab that starts a new row (i.e. is positioned below the previous tab) also needs
+	// its left border drawn.
+	bool isFirstInRow = (index == 0);
+
+	if (!isFirstInRow)
+	{
+		RECT previousRect = GetTabRect(index - 1);
+
+		if (previousRect.top != itemRect.top)
+		{
+			isFirstInRow = true;
+		}
+	}
+
+	if (isFirstInRow)
 	{
 		status = graphics.DrawLine(&borderPen, static_cast<int>(itemRect.left), itemRect.top,
 			itemRect.left, itemRect.bottom);
 		DCHECK_EQ(status, Gdiplus::Ok);
 	}
 
-	int rightBorderTop = itemRect.top;
-
-	// If this is the tab before the selected tab, then the border needs to be raised to the top of
-	// the viewport (to match the top and right edge for the selected tab).
-	if (index == (selectedIndex - 1))
-	{
-		rightBorderTop = 0;
-	}
-
-	status = graphics.DrawLine(&borderPen, static_cast<int>(itemRect.right) - 1, rightBorderTop,
+	status = graphics.DrawLine(&borderPen, static_cast<int>(itemRect.right) - 1, itemRect.top,
 		itemRect.right - 1, itemRect.bottom);
 	DCHECK_EQ(status, Gdiplus::Ok);
 
@@ -899,25 +832,11 @@ void TabView::DrawTab(HDC hdc, int index)
 	auto text = TabHelper::GetItemText(GetHWND(), index);
 	res = DrawText(hdc, text.c_str(), -1, &layout.text, DT_VCENTER | DT_SINGLELINE);
 	DCHECK_NE(res, 0);
-
-	IMAGELISTDRAWPARAMS params = {};
-	params.cbSize = sizeof(params);
-	params.himl = m_closeIconImageList.get();
-	params.i = m_closeIconImageIndex;
-	params.hdcDst = hdc;
-	params.x = layout.closeButton.left;
-	params.y = layout.closeButton.top;
-	params.rgbBk = CLR_NONE;
-	params.fStyle = ILD_TRANSPARENT;
-	params.fState =
-		(isHot && m_hotItemDetails->part == TabPart::CloseButton) ? ILS_NORMAL : ILS_SATURATE;
-	res = ImageList_DrawIndirect(&params);
-	DCHECK(res);
 }
 
 TabView::TabContentLayout TabView::GetTabContentLayout(int index) const
 {
-	auto itemRect = GetTabRectForPainting(index);
+	auto itemRect = GetTabRect(index);
 	InflateRect(&itemRect, -m_horizontalPadding, 0);
 
 	HorizontalLayout row(itemRect);
@@ -941,54 +860,17 @@ TabView::TabContentLayout TabView::GetTabContentLayout(int index) const
 		row.TakeLeft(m_horizontalPadding);
 	}
 
-	int closeIconWidth;
-	int closeIconHeight;
-	auto res = ImageList_GetIconSize(m_closeIconImageList.get(), &closeIconWidth, &closeIconHeight);
-	CHECK(res);
-
-	layout.closeButton = CenterVertically(row.TakeRight(closeIconWidth), closeIconHeight);
-	row.TakeRight(m_horizontalPadding);
-
 	layout.text = row.Remaining();
 	return layout;
-}
-
-RECT TabView::GetTabRectForPainting(int index) const
-{
-	auto itemRect = GetTabRect(index);
-	bool isSelected = (index == TabCtrl_GetCurSel(GetHWND()));
-
-	if (isSelected)
-	{
-		// Each tab in the control is at a slight vertical offset. The selected tab, however, will
-		// align with the top of the viewport.
-		itemRect.top = 0;
-	}
-
-	return itemRect;
 }
 
 void TabView::OnGetDispInfo(NMTTDISPINFO *dispInfo)
 {
 	static wchar_t tabToolTip[512];
 
-	auto layout = GetTabContentLayout(static_cast<int>(dispInfo->hdr.idFrom));
-
-	DWORD cursorPos = GetMessagePos();
-	POINT ptCursor = { GET_X_LPARAM(cursorPos), GET_Y_LPARAM(cursorPos) };
-	ScreenToClient(GetHWND(), &ptCursor);
-
-	if (PtInRect(&layout.closeButton, ptCursor))
-	{
-		auto tooltip = m_resourceLoader->LoadString(IDS_TAB_CLOSE_BUTTON_TOOLTIP);
-		StringCchCopy(tabToolTip, std::size(tabToolTip), tooltip.c_str());
-	}
-	else
-	{
-		auto *tabItem = GetTabAtIndex(static_cast<int>(dispInfo->hdr.idFrom));
-		auto tooltip = tabItem->GetTooltipText();
-		StringCchCopy(tabToolTip, std::size(tabToolTip), tooltip.c_str());
-	}
+	auto *tabItem = GetTabAtIndex(static_cast<int>(dispInfo->hdr.idFrom));
+	auto tooltip = tabItem->GetTooltipText();
+	StringCchCopy(tabToolTip, std::size(tabToolTip), tooltip.c_str());
 
 	dispInfo->lpszText = tabToolTip;
 }

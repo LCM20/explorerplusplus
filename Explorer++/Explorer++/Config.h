@@ -53,7 +53,6 @@ struct Config
 	ValueWrapper<bool> useFullRowSelect = true;
 	bool showFilePreviews = true;
 	bool allowMultipleInstances = true;
-	bool doubleClickTabClose = true;
 	ValueWrapper<bool> useLargeToolbarIcons = false;
 	bool overwriteExistingFilesConfirmation = true;
 	ValueWrapper<bool> checkBoxSelection = false;

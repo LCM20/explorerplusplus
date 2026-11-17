@@ -26,8 +26,6 @@ std::unique_ptr<ResizableDialogHelper> TabsOptionsPage::InitializeResizeDialogHe
 		SizingType::Horizontal);
 	controls.emplace_back(GetDlgItem(GetDialog(), IDC_SETTINGS_CHECK_ALWAYSNEWTAB),
 		MovingType::None, SizingType::Horizontal);
-	controls.emplace_back(GetDlgItem(GetDialog(), IDC_TABS_DOUBLECLICKCLOSE), MovingType::None,
-		SizingType::Horizontal);
 	return std::make_unique<ResizableDialogHelper>(GetDialog(), controls);
 }
 
@@ -52,11 +50,6 @@ void TabsOptionsPage::InitializeControls()
 	{
 		CheckDlgButton(GetDialog(), IDC_SETTINGS_CHECK_ALWAYSNEWTAB, BST_CHECKED);
 	}
-
-	if (m_config->doubleClickTabClose)
-	{
-		CheckDlgButton(GetDialog(), IDC_TABS_DOUBLECLICKCLOSE, BST_CHECKED);
-	}
 }
 
 void TabsOptionsPage::OnCommand(WPARAM wParam, LPARAM lParam)
@@ -69,7 +62,6 @@ void TabsOptionsPage::OnCommand(WPARAM wParam, LPARAM lParam)
 	case IDC_TABS_CLOSECONFIRMATION:
 	case IDC_TABS_OPENNEXTTOCURRENT:
 	case IDC_SETTINGS_CHECK_ALWAYSNEWTAB:
-	case IDC_TABS_DOUBLECLICKCLOSE:
 		m_settingChangedCallback();
 		break;
 	}
@@ -88,7 +80,4 @@ void TabsOptionsPage::SaveSettings()
 
 	m_config->alwaysOpenNewTab =
 		(IsDlgButtonChecked(GetDialog(), IDC_SETTINGS_CHECK_ALWAYSNEWTAB) == BST_CHECKED);
-
-	m_config->doubleClickTabClose =
-		(IsDlgButtonChecked(GetDialog(), IDC_TABS_DOUBLECLICKCLOSE) == BST_CHECKED);
 }

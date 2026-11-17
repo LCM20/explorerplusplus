@@ -64,7 +64,7 @@ protected:
 	TabViewTest() :
 		m_themeManager(&m_darkModeManager),
 		m_resourceLoader(GetModuleHandle(nullptr), IconSet::Color, nullptr, nullptr),
-		m_view(&m_parentView, WS_CHILD | TCS_FOCUSNEVER | TCS_SINGLELINE, &m_themeManager,
+		m_view(&m_parentView, WS_CHILD | TCS_FOCUSNEVER | TCS_MULTILINE, &m_themeManager,
 			&m_config, &m_resourceLoader),
 		m_testApi(&m_view)
 	{
@@ -101,6 +101,15 @@ protected:
 
 	void ResizeWindowToFitTabs()
 	{
+		// Give the window an initial size first. This is necessary because, in multiline mode, the
+		// tab control would otherwise lay the tabs out vertically (one per row), since the window
+		// initially has zero width.
+		auto res = MoveWindow(m_parentView.GetHWND(), 0, 0, 1000, 100, false);
+		ASSERT_TRUE(res);
+
+		res = MoveWindow(m_view.GetHWND(), 0, 0, 1000, 100, false);
+		ASSERT_TRUE(res);
+
 		RECT displayRect = { 0, 0, 0, 0 };
 		TabCtrl_AdjustRect(m_view.GetHWND(), true, &displayRect);
 		int height = std::abs(displayRect.top);
@@ -110,7 +119,7 @@ protected:
 
 		auto lastTabRect = m_testApi.GetTabRect(numTabs - 1);
 
-		auto res = MoveWindow(m_parentView.GetHWND(), 0, 0, lastTabRect.right, height, false);
+		res = MoveWindow(m_parentView.GetHWND(), 0, 0, lastTabRect.right, height, false);
 		ASSERT_TRUE(res);
 
 		res = MoveWindow(m_view.GetHWND(), 0, 0, lastTabRect.right, height, false);
@@ -186,62 +195,10 @@ TEST_F(TabViewTest, SelectOnClick)
 	// since the control will ignore clicks that occur outside of the client area.
 	ResizeWindowToFitTabs();
 
-	// If a tab is clicked outside of the close button, the tab should be selected.
+	// Clicking a tab should select it.
 	auto layout = m_testApi.GetTabContentLayout(1);
 	SimulateClick(m_view.GetHWND(), { layout.text.left, layout.text.top });
 	EXPECT_EQ(m_view.GetSelectedIndex(), 1);
-
-	// If the close button is clicked, the tab shouldn't be selected.
-	layout = m_testApi.GetTabContentLayout(0);
-	SimulateClick(m_view.GetHWND(), { layout.closeButton.left, layout.closeButton.top });
-	EXPECT_EQ(m_view.GetSelectedIndex(), 1);
-}
-
-TEST_F(TabViewTest, CloseButtonClick)
-{
-	m_view.AddTab(std::make_unique<TestTabViewItem>(L"Tab 1"), 0);
-
-	auto tab2 = std::make_unique<TestTabViewItem>(L"Tab 2");
-
-	MockFunction<void()> closedCallback;
-	tab2->SetClosedCallback(closedCallback.AsStdFunction());
-
-	m_view.AddTab(std::move(tab2), 1);
-
-	ResizeWindowToFitTabs();
-
-	auto layout = m_testApi.GetTabContentLayout(1);
-
-	EXPECT_CALL(closedCallback, Call());
-	SimulateClick(m_view.GetHWND(), { layout.closeButton.left, layout.closeButton.top });
-}
-
-TEST_F(TabViewTest, IgnoredCloseButtonClick)
-{
-	m_view.AddTab(std::make_unique<TestTabViewItem>(L"Tab 1"), 0);
-
-	auto tab2 = std::make_unique<TestTabViewItem>(L"Tab 2");
-
-	MockFunction<void()> closedCallback;
-	tab2->SetClosedCallback(closedCallback.AsStdFunction());
-
-	m_view.AddTab(std::move(tab2), 1);
-
-	ResizeWindowToFitTabs();
-
-	auto layout = m_testApi.GetTabContentLayout(1);
-
-	EXPECT_CALL(closedCallback, Call()).Times(0);
-
-	// The mouse button goes down on the close button, but up elsewhere on the tab, so the close
-	// callback shouldn't be invoked.
-	SimulateClick(m_view.GetHWND(), { layout.closeButton.left, layout.closeButton.top },
-		{ layout.text.left, layout.text.top });
-
-	// Here, the mouse button goes up on the close button, but down somewhere else, so the close
-	// callback shouldn't be invoked in this case either.
-	SimulateClick(m_view.GetHWND(), { layout.text.left, layout.text.top },
-		{ layout.closeButton.left, layout.closeButton.top });
 }
 
 class TabViewPaintTest : public TabViewTest
@@ -341,7 +298,7 @@ TEST_F(TabViewPaintTest, Paint)
 
 	// Previously, there was no hot item, whereas item 1 is now marked as hot. The contents of the
 	// control should now be different.
-	m_testApi.SetHotItemDetails(1, TabViewTestApi::TabPart::Body);
+	m_testApi.SetHotItemDetails(1);
 	PerformPaintTest(ChangeType::ChangeExpected);
 
 	// The selection has changed, so the contents of the control should have changed again.
@@ -351,12 +308,8 @@ TEST_F(TabViewPaintTest, Paint)
 
 	// Item 1 is selected. Its appearance shouldn't change if it becomes hot. So, the contents of
 	// the control shouldn't change here.
-	m_testApi.SetHotItemDetails(1, TabViewTestApi::TabPart::Body);
+	m_testApi.SetHotItemDetails(1);
 	PerformPaintTest(ChangeType::ChangeNotExpected);
-
-	// The close button on item 1 is now hot, so it should be drawn differently.
-	m_testApi.SetHotItemDetails(1, TabViewTestApi::TabPart::CloseButton);
-	PerformPaintTest(ChangeType::ChangeExpected);
 
 	m_view.AddTab(std::make_unique<TestTabViewItem>(L"Tab 4", m_imageIndex), 3);
 	ResizeWindowToFitTabs();

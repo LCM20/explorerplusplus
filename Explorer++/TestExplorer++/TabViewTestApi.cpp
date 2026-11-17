@@ -14,14 +14,14 @@ void TabViewTestApi::Paint(HDC hdc, const RECT &paintRect)
 	m_view->Paint(hdc, paintRect);
 }
 
-void TabViewTestApi::SetHotItemDetails(int index, TabPart part)
+void TabViewTestApi::SetHotItemDetails(int index)
 {
-	m_view->m_hotItemDetails = TabView::HotItemDetails{ index, part };
+	m_view->m_hotItemIndex = index;
 }
 
 void TabViewTestApi::ClearHotItemDetails()
 {
-	m_view->m_hotItemDetails.reset();
+	m_view->m_hotItemIndex.reset();
 }
 
 RECT TabViewTestApi::GetTabRect(int index) const

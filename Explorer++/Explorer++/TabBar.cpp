@@ -194,10 +194,7 @@ void TabBar::OnTabDoubleClicked(Tab *tab, const MouseEvent &event)
 {
 	UNREFERENCED_PARAMETER(event);
 
-	if (m_config->doubleClickTabClose)
-	{
-		CloseTab(*tab);
-	}
+	CloseTab(*tab);
 }
 
 void TabBar::OnTabMiddleClicked(Tab *tab, const MouseEvent &event)
@@ -363,7 +360,6 @@ Tab &TabBar::SetUpNewTab(Tab &tab, NavigateParams &navigateParams, const TabSett
 	tabItem->SetDoubleClickedCallback(std::bind_front(&TabBar::OnTabDoubleClicked, this, &tab));
 	tabItem->SetMiddleClickedCallback(std::bind_front(&TabBar::OnTabMiddleClicked, this, &tab));
 	tabItem->SetRightClickedCallback(std::bind_front(&TabBar::OnTabRightClicked, this, &tab));
-	tabItem->SetClosedCallback([this, &tab] { CloseTab(tab); });
 
 	/* Browse folder sends a message back to the main window, which
 	attempts to contact the new tab (needs to be created before browsing

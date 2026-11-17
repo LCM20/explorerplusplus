@@ -157,7 +157,6 @@ void LoadFromNode(IXMLDOMNode *settingsNode, Config &config)
 	}
 
 	GetBoolSetting(settingsNode, L"DisplayWindowVertical", config.displayWindowVertical);
-	GetBoolSetting(settingsNode, L"DoubleClickTabClose", config.doubleClickTabClose);
 	GetBoolSetting(settingsNode, L"ExtendTabControl", config.extendTabControl);
 	GetBoolSetting(settingsNode, L"ForceSize", config.globalFolderSettings.forceSize);
 
@@ -348,8 +347,6 @@ void SaveToNode(IXMLDOMDocument *xmlDocument, IXMLDOMElement *settingsNode, cons
 
 	XMLSettings::WriteStandardSetting(xmlDocument, settingsNode, SETTING_NODE_NAME,
 		L"DisplayWindowVertical", XMLSettings::EncodeBoolValue(config.displayWindowVertical.get()));
-	XMLSettings::WriteStandardSetting(xmlDocument, settingsNode, SETTING_NODE_NAME,
-		L"DoubleClickTabClose", XMLSettings::EncodeBoolValue(config.doubleClickTabClose));
 	XMLSettings::WriteStandardSetting(xmlDocument, settingsNode, SETTING_NODE_NAME,
 		L"ExtendTabControl", XMLSettings::EncodeBoolValue(config.extendTabControl.get()));
 	XMLSettings::WriteStandardSetting(xmlDocument, settingsNode, SETTING_NODE_NAME, L"ForceSize",
